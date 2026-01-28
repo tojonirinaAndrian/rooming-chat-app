@@ -20,8 +20,8 @@
 }
 
 @font-face {
-  font-family: "GoogleFont";
-  src: url("/Fonts/GoogleSans-VariableFont_GRAD,opsz,wght.ttf");
+  font-family: "UbuntuSansMono";
+  src: url("/Fonts/UbuntuSansMono-VariableFont_wght.ttf");
 }
 
 body {
@@ -31,6 +31,6 @@ body {
 }
 
 * {
-  font-family: "GoogleFont";
-  letter-spacing: -0.02em;
+  font-family: "UbuntuSansMono";
+  letter-spacing: -0.03em;
 }
