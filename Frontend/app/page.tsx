@@ -1,10 +1,15 @@
+"use client";
 import Image from "next/image";
+import { useState } from "react";
+import CreateRoom from "./components/createRoom";
+
 
 export default function Home() {
+  const [username, setUsername] = useState("Your username");
+  
   return (
-    <div>
-      <h1 className="text-2xl font-medium">Hello World</h1>
-      Hello world
-    </div>
+   <>
+   <CreateRoom />
+   </>
   );
 }
