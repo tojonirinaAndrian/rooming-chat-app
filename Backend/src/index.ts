@@ -41,11 +41,11 @@ app.post("/api/createRoom", async (c) => {
   const body: {
     room_name: string,
     user_id: string,
-    ws: WebSocket
+    // ws: WebSocket
   } = await c.req.json();
   const room_name: string = body.room_name;
   const created_by: string = body.user_id;
-  const user_ws: WebSocket = body.ws;
+  // const user_ws: WebSocket = body.ws;
   try {
     const createdRoom = await prismaClient.room.create({
       data: {
@@ -54,7 +54,7 @@ app.post("/api/createRoom", async (c) => {
         people_ids: [created_by]
       }
     });
-    const roomId = createdRoom.id;
+    // const roomId = createdRoom.id;
     return c.json ({
       createdRoom,
       message: "success"
@@ -68,10 +68,10 @@ app.post("/api/joinRoom/:room_name/:room_id", async (c) => {
   const room_name: string = c.req.param("room_name") as string;
   const room_id: string = c.req.param("room_id");
   const body: {
-    user_wb: WebSocket,
+    // user_wb: WebSocket,
     user_id: string
   } = await c.req.json();
-  const user_ws = body.user_wb;
+  // const user_ws = body.user_wb;
   const user_id = body.user_id;
   try {
     const currentRoom = await prismaClient.room.findFirst({
