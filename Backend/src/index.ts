@@ -44,7 +44,7 @@ app.post("/api/createRoom", async (c) => {
     // ws: WebSocket
   } = await c.req.json();
   const room_name: string = body.room_name;
-  const created_by: string = body.user_id;
+  const created_by: number = Number(body.user_id);
   // const user_ws: WebSocket = body.ws;
   try {
     const createdRoom = await prismaClient.room.create({
@@ -76,16 +76,16 @@ app.post("/api/joinRoom/:room_name/:room_id", async (c) => {
   try {
     const currentRoom = await prismaClient.room.findFirst({
       where: {
-        id: (room_id), room_name
+        id: Number(room_id), room_name
       }
     });
     if (currentRoom) {
-      const new_people_ids: string[] = currentRoom.people_ids;
-      new_people_ids.push(user_id);
+      const new_people_ids: number[] = currentRoom.people_ids;
+      new_people_ids.push(Number(user_id));
       const updatedRoom = await prismaClient.room.update({
         where: {
           room_name,
-          id: (room_id)
+          id: Number(room_id)
         }, data : {
           people_ids: [...new_people_ids]
         }
