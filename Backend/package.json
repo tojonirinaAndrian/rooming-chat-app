@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
+    "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.19",
