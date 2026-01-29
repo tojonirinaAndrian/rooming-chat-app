@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import dotenv from "dotenv";
 import { fire } from "hono/service-worker";
 import {cors} from "hono/cors";
-import { serveStatic } from "hono/bun"; 
+import { serveStatic } from "hono/bun";
 
 const app = new Hono();
 const FRONT_URL: string = String(process.env.FRONT_URL);
