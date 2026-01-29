@@ -74,16 +74,16 @@ export default function SignUp () {
     }, [email, password, username])
 
     return <div className="w-full h-dvh flex items-center justify-center flex-col">
-        <div className="p-4 md-w-[50dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
+        <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
             <p className="text-xl font-bold">{"@"}account_creation</p>
             <p className=" text-slate-600">Please enter your credentials</p>
-            <div className="space-y-1">
+            <div className="space-y-2">
                 <div className="space-y-1">
                     <label htmlFor="username" className="text-black/80">Username : </label>
                     <input 
                         type="text" name="username"
                         onChange={(e) => onUsernameChange(e)}
-                        className="border rounded-sm p-1 px-2 w-full"
+                        className="border rounded-sm p-1 px-2 w-full border-slate-200"
                     />
                     {usernameError.length > 0 && <p className="mx-2 text-sm text-red-500">
                         * {usernameError}  
@@ -94,7 +94,7 @@ export default function SignUp () {
                     <input 
                         type="email" name="email" 
                         onChange={(e) => onEmailChange(e)}
-                        className="border rounded-sm p-1 px-2 w-full"
+                        className="border rounded-sm p-1 px-2 w-full border-slate-200"
                     />
                     {emailErrors && <p className="mx-2 text-sm text-red-500">
                         * Invalid email 
@@ -107,7 +107,7 @@ export default function SignUp () {
                             type={!visiblePassword ? "password" : "text"} 
                             name="password" 
                             onChange={(e) => onPasswordChange(e)}
-                            className="border rounded-sm p-1 px-2 w-full"
+                            className="border rounded-sm p-1 px-2 w-full border-slate-200"
                         />
                         <span 
                             className="text-sm cursor-pointer text-black/80"

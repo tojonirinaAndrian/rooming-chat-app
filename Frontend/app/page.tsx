@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import CreateRoom from "./components/createRoom";
 import SignIn from "./components/signIn";
+import SignUp from "./components/signUp";
 
 
 export default function Home() {
@@ -11,7 +12,8 @@ export default function Home() {
   return (
    <>
    {/* <CreateRoom /> */}
-   <SignIn />
+   {/* <SignIn /> */}
+   <SignUp />
    </>
   );
 }

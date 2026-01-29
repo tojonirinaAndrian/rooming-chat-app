@@ -21,7 +21,7 @@ export default function CreateRoom () {
 
     return <>
         <div className="w-full h-dvh flex items-center justify-center flex-col">
-            <div className="p-4 md-w-[50dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
+            <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
                 <p className="text-xl font-bold">{"@"}room_creation</p>
                 <p className=" text-slate-600">Please enter the room name</p>
                 <div className="space-y-1">
