@@ -106,13 +106,13 @@ app.get("/api/createRandomUsers", async (c) => {
   try {
     await prismaClient.user.deleteMany();
     const new_users: {
-      name: string, email: string,id: string
+      name: string, email: string
     }[] = [{
-      name: "User1", email: "user1@email.com", id: "1sf"
+      name: "User1", email: "user1@email.com"
     }, {
-      name: "User2", email: "user2@email.com", id: "2fs"
+      name: "User2", email: "user2@email.com"
     }, {
-      name: "User3", email: "user3@email.com", id: "3fs"
+      name: "User3", email: "user3@email.com"
     }];
     
     const data = await prismaClient.user.createMany({
