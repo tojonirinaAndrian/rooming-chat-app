@@ -6,17 +6,34 @@ import { prismaClient } from './prismaClient';
 
 const app = new Hono();
 const FRONT_URL: string = String(process.env.FRONT_URL);
+const rooms = new Map<number, Set<WebSocket>>();
+const wsMeta = new Map<WebSocket, { userId: string, roomId: number }>();
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 });
 
+// Helper to get WebSocket parameters from the request
+const getWsParams = (c: any) => {
+  const url = new URL(String(c.req.url), `http://${c.req.headers.get('host') || 'localhost'}`);
+  return {
+    roomId: Number(url.searchParams.get("roomId")),
+    userId: Number(url.searchParams.get("userId")),
+  };
+};
+
 // websocket
 app.get("/ws", upgradeWebSocket((c) => {
+  const urlParams = getWsParams(c);
+  const roomId = urlParams.roomId;
+  const userId = urlParams.userId;
+
   return {
     onOpen(ws) {
-      console.log("WS Connected");
-    }, 
+      if (!(roomId && userId)) {
+        console.error("Missing roomId or userId in WebSocket request");
+      }
+    },
     onMessage(event, ws) {
       console.log("Received : ", event.data);
       ws.send(String(event.data));
