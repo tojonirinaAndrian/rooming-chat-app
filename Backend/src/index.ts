@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { fire } from "hono/service-worker";
-import {cors} from "hono/cors";
+import { cors } from "hono/cors";
 import { upgradeWebSocket } from 'hono/bun';
 import { prismaClient } from './prismaClient';
 
@@ -43,9 +43,11 @@ app.post("/api/createRoom", async (c) => {
     user_id: string,
     // ws: WebSocket
   } = await c.req.json();
+  
   const room_name: string = body.room_name;
   const created_by: number = Number(body.user_id);
   // const user_ws: WebSocket = body.ws;
+  
   try {
     const createdRoom = await prismaClient.room.create({
       data: {
@@ -59,8 +61,9 @@ app.post("/api/createRoom", async (c) => {
       createdRoom,
       message: "success"
     });
-  } catch {
-    return c.text("error")
+
+  } catch(e) {
+    return c.json({error : e});
   }
 });
 
@@ -79,6 +82,7 @@ app.post("/api/joinRoom/:room_name/:room_id", async (c) => {
         id: Number(room_id), room_name
       }
     });
+
     if (currentRoom) {
       const new_people_ids: number[] = currentRoom.people_ids;
       new_people_ids.push(Number(user_id));
@@ -96,11 +100,12 @@ app.post("/api/joinRoom/:room_name/:room_id", async (c) => {
       });
     } else {
       return c.text("room_not_found");
-    }  
-  } catch {
-    return c.text("error");
+    }
+
+  } catch(e) {
+    return c.json({error : e});
   }
-})
+});
 
 app.get("/api/createRandomUsers", async (c) => {
   try {

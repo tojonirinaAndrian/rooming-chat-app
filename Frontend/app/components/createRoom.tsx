@@ -37,7 +37,6 @@ export default function CreateRoom () {
                         }}
                     >{creatingRoom ? "Creating room..." : "Create"}</button>
                 </div>
-
             </div>            
         </div>
     </>
