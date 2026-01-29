@@ -1,8 +1,6 @@
 import { Hono } from 'hono';
-import dotenv from "dotenv";
 import { fire } from "hono/service-worker";
 import {cors} from "hono/cors";
-import { serveStatic } from "hono/bun";
 import { upgradeWebSocket } from 'hono/bun';
 import { prismaClient } from './prismaClient';
 
@@ -48,10 +46,81 @@ app.post("/api/createRoom", async (c) => {
   const room_name: string = body.room_name;
   const created_by: string = body.user_id;
   const user_ws: WebSocket = body.ws;
-
-  return c.text("Creating room");
+  try {
+    const createdRoom = await prismaClient.room.create({
+      data: {
+        room_name,
+        created_by,
+        people_ids: [created_by]
+      }
+    });
+    const roomId = createdRoom.id;
+    return c.json ({
+      createdRoom,
+      message: "success"
+    });
+  } catch {
+    return c.text("error")
+  }
 });
 
+app.post("/api/joinRoom/:room_name/:room_id", async (c) => {
+  const room_name: string = c.req.param("room_name") as string;
+  const room_id: string = c.req.param("room_id");
+  const body: {
+    user_wb: WebSocket,
+    user_id: string
+  } = await c.req.json();
+  const user_ws = body.user_wb;
+  const user_id = body.user_id;
+  try {
+    const currentRoom = await prismaClient.room.findFirst({
+      where: {
+        id: (room_id), room_name
+      }
+    });
+    if (currentRoom) {
+      const new_people_ids: string[] = currentRoom.people_ids;
+      new_people_ids.push(user_id);
+      const updatedRoom = await prismaClient.room.update({
+        where: {
+          room_name,
+          id: (room_id)
+        }, data : {
+          people_ids: [...new_people_ids]
+        }
+      });
+      return c.json({
+        updatedRoom,
+        message: "success"
+      });
+    } else {
+      return c.text("room_not_found");
+    }  
+  } catch {
+    return c.text("error");
+  }
+})
+
+app.get("/api/createRandomUsers", async (c) => {
+  try {
+    const new_users: {
+      name: string, email: string
+    }[] = [{
+      name: "User1", email: "user1@email.com"
+    }, {
+      name: "User2", email: "user2@email.com"
+    }, {
+      name: "User3", email: "user3@email.com"
+    }];
+    await prismaClient.user.createMany({
+      data: new_users
+    });
+    return c.text("success");
+  } catch {
+    return c.text("error");
+  }
+})
 
 fire(app);
 

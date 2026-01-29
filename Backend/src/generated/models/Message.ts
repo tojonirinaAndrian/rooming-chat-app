@@ -20,22 +20,12 @@ export type MessageModel = runtime.Types.Result.DefaultSelection<Prisma.$Message
 
 export type AggregateMessage = {
   _count: MessageCountAggregateOutputType | null
-  _avg: MessageAvgAggregateOutputType | null
-  _sum: MessageSumAggregateOutputType | null
   _min: MessageMinAggregateOutputType | null
   _max: MessageMaxAggregateOutputType | null
 }
 
-export type MessageAvgAggregateOutputType = {
-  id: number | null
-}
-
-export type MessageSumAggregateOutputType = {
-  id: number | null
-}
-
 export type MessageMinAggregateOutputType = {
-  id: number | null
+  id: string | null
   content: string | null
   sent_by_id: string | null
   room_id: string | null
@@ -43,7 +33,7 @@ export type MessageMinAggregateOutputType = {
 }
 
 export type MessageMaxAggregateOutputType = {
-  id: number | null
+  id: string | null
   content: string | null
   sent_by_id: string | null
   room_id: string | null
@@ -59,14 +49,6 @@ export type MessageCountAggregateOutputType = {
   _all: number
 }
 
-
-export type MessageAvgAggregateInputType = {
-  id?: true
-}
-
-export type MessageSumAggregateInputType = {
-  id?: true
-}
 
 export type MessageMinAggregateInputType = {
   id?: true
@@ -131,18 +113,6 @@ export type MessageAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: MessageAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: MessageSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: MessageMinAggregateInputType
@@ -173,21 +143,17 @@ export type MessageGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: MessageCountAggregateInputType | true
-  _avg?: MessageAvgAggregateInputType
-  _sum?: MessageSumAggregateInputType
   _min?: MessageMinAggregateInputType
   _max?: MessageMaxAggregateInputType
 }
 
 export type MessageGroupByOutputType = {
-  id: number
+  id: string
   content: string
   sent_by_id: string
   room_id: string
   created_at: Date
   _count: MessageCountAggregateOutputType | null
-  _avg: MessageAvgAggregateOutputType | null
-  _sum: MessageSumAggregateOutputType | null
   _min: MessageMinAggregateOutputType | null
   _max: MessageMaxAggregateOutputType | null
 }
@@ -211,7 +177,7 @@ export type MessageWhereInput = {
   AND?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
   OR?: Prisma.MessageWhereInput[]
   NOT?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
-  id?: Prisma.IntFilter<"Message"> | number
+  id?: Prisma.StringFilter<"Message"> | string
   content?: Prisma.StringFilter<"Message"> | string
   sent_by_id?: Prisma.StringFilter<"Message"> | string
   room_id?: Prisma.StringFilter<"Message"> | string
@@ -227,7 +193,7 @@ export type MessageOrderByWithRelationInput = {
 }
 
 export type MessageWhereUniqueInput = Prisma.AtLeast<{
-  id?: number
+  id?: string
   AND?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
   OR?: Prisma.MessageWhereInput[]
   NOT?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
@@ -244,17 +210,15 @@ export type MessageOrderByWithAggregationInput = {
   room_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   _count?: Prisma.MessageCountOrderByAggregateInput
-  _avg?: Prisma.MessageAvgOrderByAggregateInput
   _max?: Prisma.MessageMaxOrderByAggregateInput
   _min?: Prisma.MessageMinOrderByAggregateInput
-  _sum?: Prisma.MessageSumOrderByAggregateInput
 }
 
 export type MessageScalarWhereWithAggregatesInput = {
   AND?: Prisma.MessageScalarWhereWithAggregatesInput | Prisma.MessageScalarWhereWithAggregatesInput[]
   OR?: Prisma.MessageScalarWhereWithAggregatesInput[]
   NOT?: Prisma.MessageScalarWhereWithAggregatesInput | Prisma.MessageScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"Message"> | number
+  id?: Prisma.StringWithAggregatesFilter<"Message"> | string
   content?: Prisma.StringWithAggregatesFilter<"Message"> | string
   sent_by_id?: Prisma.StringWithAggregatesFilter<"Message"> | string
   room_id?: Prisma.StringWithAggregatesFilter<"Message"> | string
@@ -262,6 +226,7 @@ export type MessageScalarWhereWithAggregatesInput = {
 }
 
 export type MessageCreateInput = {
+  id?: string
   content: string
   sent_by_id: string
   room_id: string
@@ -269,7 +234,7 @@ export type MessageCreateInput = {
 }
 
 export type MessageUncheckedCreateInput = {
-  id?: number
+  id?: string
   content: string
   sent_by_id: string
   room_id: string
@@ -277,6 +242,7 @@ export type MessageUncheckedCreateInput = {
 }
 
 export type MessageUpdateInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   sent_by_id?: Prisma.StringFieldUpdateOperationsInput | string
   room_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -284,7 +250,7 @@ export type MessageUpdateInput = {
 }
 
 export type MessageUncheckedUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   sent_by_id?: Prisma.StringFieldUpdateOperationsInput | string
   room_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -292,7 +258,7 @@ export type MessageUncheckedUpdateInput = {
 }
 
 export type MessageCreateManyInput = {
-  id?: number
+  id?: string
   content: string
   sent_by_id: string
   room_id: string
@@ -300,6 +266,7 @@ export type MessageCreateManyInput = {
 }
 
 export type MessageUpdateManyMutationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   sent_by_id?: Prisma.StringFieldUpdateOperationsInput | string
   room_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -307,7 +274,7 @@ export type MessageUpdateManyMutationInput = {
 }
 
 export type MessageUncheckedUpdateManyInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   sent_by_id?: Prisma.StringFieldUpdateOperationsInput | string
   room_id?: Prisma.StringFieldUpdateOperationsInput | string
@@ -320,10 +287,6 @@ export type MessageCountOrderByAggregateInput = {
   sent_by_id?: Prisma.SortOrder
   room_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
-}
-
-export type MessageAvgOrderByAggregateInput = {
-  id?: Prisma.SortOrder
 }
 
 export type MessageMaxOrderByAggregateInput = {
@@ -340,10 +303,6 @@ export type MessageMinOrderByAggregateInput = {
   sent_by_id?: Prisma.SortOrder
   room_id?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
-}
-
-export type MessageSumOrderByAggregateInput = {
-  id?: Prisma.SortOrder
 }
 
 
@@ -386,7 +345,7 @@ export type $MessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Message"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    id: number
+    id: string
     content: string
     sent_by_id: string
     room_id: string
@@ -814,7 +773,7 @@ export interface Prisma__MessageClient<T, Null = never, ExtArgs extends runtime.
  * Fields of the Message model
  */
 export interface MessageFieldRefs {
-  readonly id: Prisma.FieldRef<"Message", 'Int'>
+  readonly id: Prisma.FieldRef<"Message", 'String'>
   readonly content: Prisma.FieldRef<"Message", 'String'>
   readonly sent_by_id: Prisma.FieldRef<"Message", 'String'>
   readonly room_id: Prisma.FieldRef<"Message", 'String'>

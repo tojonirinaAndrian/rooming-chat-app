@@ -14,20 +14,21 @@ datasource db {
 }
 
 model User {
-  id            Int         @id         @default(autoincrement())
-  email         String      @unique
+  id            String         @id         @default(uuid())
+  email         String         @unique
   name          String
 }
 
 model Room {
-  id                        Int         @id         @default(autoincrement())
-  people_ids                String[]    @default([])
+  id                        String         @id         @default(uuid())
+  people_ids                String[]    
   created_at                DateTime    @default(now())
   created_by                String
+  room_name                 String
 }
 
 model Message {
-  id            Int         @id         @default(autoincrement())
+  id            String         @id         @default(uuid())
   content       String
   sent_by_id    String      
   room_id       String      
