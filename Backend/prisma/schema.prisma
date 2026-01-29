@@ -21,7 +21,7 @@ model User {
 
 model Room {
   id                        Int         @id         @default(autoincrement())
-  people                    Int[]       @default([])
+  people_ids                String[]    @default([])
   created_at                DateTime    @default(now())
   created_by                String
 }
