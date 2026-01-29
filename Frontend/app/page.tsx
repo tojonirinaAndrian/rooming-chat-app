@@ -11,9 +11,9 @@ export default function Home() {
   
   return (
    <>
-   {/* <CreateRoom /> */}
+   <CreateRoom />
    {/* <SignIn /> */}
-   <SignUp />
+   {/* <SignUp /> */}
    </>
   );
 }

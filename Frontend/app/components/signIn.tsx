@@ -64,15 +64,18 @@ export default function SignIn () {
     
     return <div className="w-full h-dvh flex items-center justify-center flex-col">
         <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
-            <p className="text-xl font-bold">{"@"}connection</p>
-            <p className=" text-slate-600">Please enter your credentials</p>
+            <div className="text-center space-y-3">
+                <p className="text-xl font-bold">{"@"}connection</p>
+                <p className=" text-slate-600">Please enter your credentials</p>
+            </div>
             <div className="space-y-2">
                 <div className="space-y-1">
                     <label htmlFor="email" className="text-black/80">Email : </label>
                     <input 
                         type="email" name="email" 
                         onChange={(e) => onEmailChange(e)}
-                        className="border rounded-sm p-1 px-2 w-full border-slate-200"
+                        placeholder="your email address"
+                        className="border rounded-sm p-3 w-full border-slate-200"
                     />
                     {emailErrors && <p className="mx-2 text-sm text-red-500">
                         * Invalid email 
@@ -82,10 +85,11 @@ export default function SignIn () {
                     <label htmlFor="password" className="text-black/80">Password : </label>
                     <div className="flex gap-2 items-center">
                         <input 
+                            placeholder="password"
                             type={!visiblePassword ? "password" : "text"} 
-                            name="password" 
+                            name="your password" 
                             onChange={(e) => onPasswordChange(e)}
-                            className="border rounded-sm p-1 px-2 w-full border-slate-200"
+                            className="border rounded-sm p-3 w-full border-slate-200"
                         />
                         <span 
                             className="text-sm cursor-pointer text-black/80"

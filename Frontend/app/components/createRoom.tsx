@@ -9,9 +9,12 @@ export default function CreateRoom () {
     //TODO : Create a function that triggers then the button create room is clicked
     const onCreateRoomClick = () => {
         startCreatingRoom(async () => {
-            //TODO : Call from backend
-            const res = await axios.get("/api/createRoom");
-            console.log("res : " + res.data);
+            //TODO : Call from backend;
+            if (roomName.length > 0) {
+                const res = await axios.get("/api/createRoom");
+                console.log("res : " + res.data);
+            }
+            
         })
     }
     const onRoomNameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -22,18 +25,20 @@ export default function CreateRoom () {
     return <>
         <div className="w-full h-dvh flex items-center justify-center flex-col">
             <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
-                <p className="text-xl font-bold">{"@"}room_creation</p>
-                <p className=" text-slate-600">Please enter the room name</p>
+                <div className="text-center space-y-3">
+                    <p className="text-xl font-bold">{"@"}room_creation</p>
+                    <p className=" text-slate-600">Please enter the room name</p>
+                </div>
                 <div className="space-y-1">
                     <input 
                         onChange={(e) => onRoomNameChange(e)} 
                         type="text" 
-                        className="p-2 rounded-sm border border-slate-200 w-full bg-slate-50 " placeholder="enter room name..."
+                        className="p-3 rounded-sm border border-slate-200 w-full " placeholder="enter room name..."
                     />
                     <button 
-                        className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${creatingRoom && " opacity-50 "}`}
+                        className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(creatingRoom || roomName.length <= 0) && " opacity-50 "}`}
                         onClick={(e) => {
-                            onCreateRoomClick();
+                            (roomName.length > 0) && onCreateRoomClick();
                         }}
                     >{creatingRoom ? "Creating room..." : "Create"}</button>
                 </div>
