@@ -104,22 +104,31 @@ app.post("/api/joinRoom/:room_name/:room_id", async (c) => {
 
 app.get("/api/createRandomUsers", async (c) => {
   try {
+    await prismaClient.user.deleteMany();
     const new_users: {
-      name: string, email: string
+      name: string, email: string,id: string
     }[] = [{
-      name: "User1", email: "user1@email.com"
+      name: "User1", email: "user1@email.com", id: "1sf"
     }, {
-      name: "User2", email: "user2@email.com"
+      name: "User2", email: "user2@email.com", id: "2fs"
     }, {
-      name: "User3", email: "user3@email.com"
+      name: "User3", email: "user3@email.com", id: "3fs"
     }];
-    await prismaClient.user.createMany({
-      data: new_users
+    
+    const data = await prismaClient.user.createMany({
+      data: [...new_users]
     });
+    
     return c.text("success");
-  } catch {
-    return c.text("error");
+  } catch(e) {
+    return c.json({error : e});
   }
+});
+
+app.get("/api/getCurrentUsers", async (c) => {
+  const users = await prismaClient.user.findMany();
+  if (users) return c.json(users)
+  else return c.text("error")
 })
 
 fire(app);
