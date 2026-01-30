@@ -17,6 +17,7 @@ const SESSION_TTL: number = Number(process.env.SESSION_TTL);
 const COOKIE_NAME: string = 'sessionId';
 
 app.get('/', (c) => {
+  console.log("hello");
   return c.text('Hello Hono!');
 });
 

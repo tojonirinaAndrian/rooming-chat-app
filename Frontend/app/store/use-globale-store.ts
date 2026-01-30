@@ -3,16 +3,17 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+type whereIsPrincipalType = "login" | "signup" | "createRoom"
 interface useStoreProps {
-    whereIsPrincipal: string,
-    setWhereIsPrincipal: (arg0: string) => void
+    whereIsPrincipal: whereIsPrincipalType,
+    setWhereIsPrincipal: (arg0: whereIsPrincipalType) => void
 }
 
 export const useGlobalStore = create<useStoreProps>() (
 	persist (
         (set, get) => ({
             whereIsPrincipal: "login",
-            setWhereIsPrincipal : (where: string) => {
+            setWhereIsPrincipal : (where: whereIsPrincipalType) => {
                 set(() => {
                     return ({
                         whereIsPrincipal: where

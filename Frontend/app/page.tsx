@@ -11,7 +11,7 @@ export default function Home() {
   const {whereIsPrincipal, setWhereIsPrincipal} = useGlobalStore()  
   return (
    <>
-   {whereIsPrincipal === "signin" && <SignIn />}
+   {whereIsPrincipal === "login" && <SignIn />}
    {whereIsPrincipal === "signup" && <SignUp />}
    {whereIsPrincipal === "createRoom" && <CreateRoom />}
    </>

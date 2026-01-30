@@ -35,6 +35,7 @@ export default function SignIn () {
             // });
             //test
             const response = await axios.get("http://localhost:3000");
+            console.log(response);
         });
     };
     const continuingConditions: boolean = ((email.length > 0) && (password.length > 0) && (isThereErrors === false));
