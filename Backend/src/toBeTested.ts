@@ -1,96 +1,90 @@
-// Helper function to extract query params
-const getWsParams = (c: any) => {
-  const url = new URL(String(c.req.url), `http://${c.req.headers.get('host') || 'localhost'}`);
-  return {
-    roomId: Number(url.searchParams.get("roomId")),
-    userId: Number(url.searchParams.get("userId")),
-  };
-};
+// server
+import { serve } from '@hono/node-server';
+import { Hono } from 'hono';
+import { Server } from 'socket.io';
+import { Server as HttpServer } from 'http';
+const app = new Hono();
 
-// Helper to broadcast messages to a room
-const broadcastToRoom = (roomId: number, payload: any, exclude?: WebSocket) => {
-  const clients = rooms.get(roomId);
-  if (!clients) return;
-  const text = JSON.stringify(payload);
-  for (const client of clients) {
-    if (client !== exclude) {
-      try { client.send(text); } catch (e) { /* ignore */ }
-    }
+app.get('/', (c) => {
+  return c.text('Hello Hono!');
+});
+
+const server = serve(
+  {
+    fetch: app.fetch,
+    port: 3000,
+  },
+  (info) => {
+    console.log(`Server is running: http://${info.address}:${info.port}`);
   }
-};
+);
 
-// WebSocket endpoint
-app.get("/ws", upgradeWebSocket((c) => {
-  const { roomId, userId } = getWsParams(c);
+const ioServer = new Server(server as HttpServer, {
+  path: '/ws',
+  serveClient: false,
+});
+ioServer.on("error", (err) => {
+  console.log(err)
+})
 
-  return {
-    onOpen(ws) {
-      if (!roomId || !userId) {
-        ws.close(1008, "missing roomId or userId");
-        return;
-      }
+ioServer.on("connection", (socket) => {
+  console.log("client connected")
+})
 
-      let set = rooms.get(roomId);
-      if (!set) {
-        set = new Set();
-        rooms.set(roomId, set);
-      }
-      set.add(ws);
-      wsMeta.set(ws, { userId, roomId });
+setInterval(() => {
+  ioServer.emit("hello", "world")
+},1000);
 
-      broadcastToRoom(roomId, { type: "user_join", userId });
-      console.log(`WS: user ${userId} joined room ${roomId}`);
-    },
-    
-    async onMessage(event, ws) {
-      try {
-        const meta = wsMeta.get(ws);
-        if (!meta) return;
-        const { roomId, userId } = meta;
-        const data = JSON.parse(String(event.data));
+///////////////////////////////////////////////////////////////////
 
-        if (data.type === "message" && typeof data.content === "string") {
-          const payload = {
-            type: "message",
-            userId,
-            content: data.content,
-            timestamp: Date.now(),
-          };
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+import { Server } from 'socket.io';
+import { createClient } from 'redis';
+import { createAdapter } from '@socket.io/redis-adapter';
 
-          // Save message to DB
-          try {
-            await prismaClient.message.create({
-              data: {
-                content: data.content,
-                room_id: roomId,
-                sent_by: userId,
-              },
-            });
-          } catch (e) {
-            console.error("Failed to persist message:", e);
-          }
+const app = new Hono();
 
-          broadcastToRoom(roomId, payload);
-        }
-      } catch (e) {
-        console.error("ws onMessage error", e);
-      }
-    },
-    
-    onClose(ws) {
-      const meta = wsMeta.get(ws);
-      if (!meta) return;
-      const { roomId, userId } = meta;
-      wsMeta.delete(ws);
+// Route HTTP classique pour l'historique (Hono est super rapide ici)
+app.get('/rooms/:code/messages', async (c) => {
+  const code = c.req.param('code');
+  // Logique PostgreSQL ici...
+  return c.json([{ author: 'Système', message: `Bienvenue dans la room ${code}` }]);
+});
 
-      const set = rooms.get(roomId);
-      if (set) {
-        set.delete(ws);
-        if (set.size === 0) rooms.delete(roomId);
-      }
+const port = 4000;
+const server = serve({
+  fetch: app.fetch,
+  port
+});
 
-      broadcastToRoom(roomId, { type: "user_leave", userId });
-      console.log(`WS: user ${userId} left room ${roomId}`);
-    }
+// Création de l'instance Socket.io attachée au serveur HTTP
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
   }
-}));
+});
+
+// Configuration Redis (Identique à Express)
+const pubClient = createClient({ url: 'redis://localhost:6379' });
+const subClient = pubClient.duplicate();
+
+await Promise.all([pubClient.connect(), subClient.connect()]);
+io.adapter(createAdapter(pubClient, subClient));
+
+io.on('connection', (socket) => {
+  console.log('Connecté à Hono:', socket.id);
+
+  socket.on('join_room', (room) => {
+    socket.join(room);
+  });
+
+  socket.on('send_message', async (data) => {
+    // 1. Save to PG
+    // 2. Broadcast
+    io.to(data.room).emit('receive_message', data);
+  });
+});
+
+console.log(`Serveur Hono lancé sur le port ${port}`);

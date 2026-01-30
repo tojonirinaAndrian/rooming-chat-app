@@ -232,14 +232,14 @@ export type RoomOrderByWithRelationInput = {
 
 export type RoomWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  room_name?: string
   AND?: Prisma.RoomWhereInput | Prisma.RoomWhereInput[]
   OR?: Prisma.RoomWhereInput[]
   NOT?: Prisma.RoomWhereInput | Prisma.RoomWhereInput[]
   people_ids?: Prisma.IntNullableListFilter<"Room">
   created_at?: Prisma.DateTimeFilter<"Room"> | Date | string
   created_by?: Prisma.IntFilter<"Room"> | number
-  room_name?: Prisma.StringFilter<"Room"> | string
-}, "id">
+}, "id" | "room_name">
 
 export type RoomOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -367,10 +367,6 @@ export type RoomCreatepeople_idsInput = {
 export type RoomUpdatepeople_idsInput = {
   set?: number[]
   push?: number | number[]
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 

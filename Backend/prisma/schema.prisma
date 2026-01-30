@@ -13,10 +13,21 @@ datasource db {
   provider = "postgresql"
 }
 
+model Session {
+  sessionId Int      @id @default(autoincrement())
+  userId    Int
+  startedAt DateTime @default(now())
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  isRevoked Boolean  @default(false)
+}
+
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  name  String
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  name     String
+  password String
 }
 
 model Room {
@@ -24,7 +35,7 @@ model Room {
   people_ids Int[]
   created_at DateTime @default(now())
   created_by Int
-  room_name  String
+  room_name  String   @unique
 }
 
 model Message {
