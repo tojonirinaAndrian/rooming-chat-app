@@ -16,10 +16,14 @@ const PORT: string = String(process.env.PORT);
 const SESSION_TTL: number = Number(process.env.SESSION_TTL);
 const COOKIE_NAME: string = 'sessionId';
 
-app.get('/', (c) => {
-  console.log("hello");
-  return c.text('Hello Hono!');
-});
+
+// CORS
+app.use('*', cors({
+  origin: FRONT_URL,
+  allowMethods:['GET', 'POST', 'DELETE', 'PUT'],
+  allowHeaders:['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 // middleware that would run befor every api req :
 app.use("*", async (c, next) => {
@@ -71,50 +75,42 @@ app.use("*", async (c, next) => {
 })
 
 // hono serving as node-server
-const server = serve({
-  fetch: app.fetch,
-  port: Number(PORT),
-}, (info) => {
-  console.log(`Server is running at http://${info.address}:${info.port}`);
-});
+// const server = serve({
+//   fetch: app.fetch,
+//   port: Number(PORT),
+// }, (info) => {
+//   console.log(`Server is running at http://${info.address}:${info.port}`);
+// });
 
 // Socket.IO instance attached to the HTTP server (Frontend will connect to this)
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: FRONT_URL,
-    methods: ["GET", "POST", "DELETE", "PUT"]
-  }
-});
+// const io = new SocketIOServer(server, {
+//   cors: {
+//     origin: FRONT_URL,
+//     methods: ["GET", "POST", "DELETE", "PUT"]
+//   }
+// });
 
 // Redis client for pub/sub
-const redisConfig = async () => {
-  const pubClient = createClient({
-    url: 'redis://localhost:6379'
-  });
-  const subClient = pubClient.duplicate();
-  await Promise.all([pubClient.connect(), subClient.connect()]);
-  io.adapter(createAdapter(pubClient, subClient));
-};
-redisConfig();
+// const redisConfig = async () => {
+//   const pubClient = createClient({
+//     url: 'redis://localhost:6379'
+//   });
+//   const subClient = pubClient.duplicate();
+//   await Promise.all([pubClient.connect(), subClient.connect()]);
+//   io.adapter(createAdapter(pubClient, subClient));
+// };
+// redisConfig();
 
 // socket.io connection
-io.on("connection", (socket) => {
-  console.log("New client connected:", socket.id);
-  socket.on("join_room", (room) => {
-    socket.join(room);
-  });
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
-  });
-});
-
-// CORS
-app.use('*', cors({
-  origin: FRONT_URL,
-  allowMethods:['GET', 'POST', 'DELETE', 'PUT'],
-  allowHeaders:['Content-Type', 'Authorization'],
-  credentials: true
-}));
+// io.on("connection", (socket) => {
+//   console.log("New client connected:", socket.id);
+//   socket.on("join_room", (room) => {
+//     socket.join(room);
+//   });
+//   socket.on("disconnect", () => {
+//     console.log("Client disconnected:", socket.id);
+//   });
+// });
 
 // session creation
 const createSession = async (
@@ -161,6 +157,12 @@ const deleteAllExpiredSessions = async () => {
 }
 
 // REST API
+// test
+app.get('/', (c) => {
+  console.log("hello");
+  return c.text('Hello Hono!');
+});
+
 // login
 app.post("/api/login", async (c) => {
   if ((c as any).session && (c as any).user) {
