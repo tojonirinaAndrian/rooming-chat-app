@@ -13,10 +13,10 @@ dotenv.config();
 
 const app = new Hono();
 const FRONT_URL: string = String(process.env.FRONT_URL);
+console.log(FRONT_URL);
 const PORT: string = String(process.env.PORT);
 const SESSION_TTL: number = Number(process.env.SESSION_TTL);
 const COOKIE_NAME: string = 'sessionId';
-
 
 // CORS
 app.use('*', cors({
@@ -30,7 +30,7 @@ app.use('*', cors({
 // test
 app.get('/', async(c) => {
   console.log("hello");
-  return c.text('Hello Hono!');
+  return c.json({message: 'Hello Hono!'});
 });
 
 

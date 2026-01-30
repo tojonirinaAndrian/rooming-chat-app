@@ -30,11 +30,9 @@ export default function SignIn () {
         startContinuing (async () => {
             // await from the backend
             // TODO : Try connection to the backend
-            // const response = await axios.post("http://localhost:3000/api/login",{
-            //     email, password   
-            // });
-            //test
-            const response = await axios.get("http://localhost:3000");
+            const response = await axios.post("http://localhost:3000/api/login",{
+                email, password   
+            });
             console.log(response);
         });
     };
