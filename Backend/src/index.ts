@@ -13,7 +13,6 @@ dotenv.config();
 
 const app = new Hono();
 const FRONT_URL: string = String(process.env.FRONT_URL);
-console.log(FRONT_URL);
 const PORT: string = String(process.env.PORT);
 const SESSION_TTL: number = Number(process.env.SESSION_TTL);
 const COOKIE_NAME: string = 'sessionId';
@@ -142,7 +141,7 @@ app.post("/api/login", async (c) => {
       where: {
         email: body.email
       }
-    })
+    });
     if (userIfExists) {
       const isPasswordCorrect = await bcrypt.compare (body.password, userIfExists.password);
       if (!isPasswordCorrect) {
