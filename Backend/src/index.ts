@@ -145,7 +145,7 @@ const cookieOptions = (maxAgeSeconds: number): string => {
 }
 
 // deleting all expired sessions
-export const deleteAllExpiredSessions = async () => {
+const deleteAllExpiredSessions = async () => {
   try {
     await prismaClient.session.deleteMany({
       where: { 
@@ -235,6 +235,24 @@ app.post("/api/singup", async (c) => {
   } catch(error) {
     console.log(error);
   }
+})
+
+// logout
+app.get("/api/logout", async (c) => {
+  const session = (c as any).session;
+  if (session) {
+    try {
+      await prismaClient.session.update({
+        where: {sessionId: session.sessionId}, data: {
+          isRevoked: true
+        }
+      });
+      return c.json({message: "logoutSuccessful"});
+    } catch (error) {
+      return c.json({error});
+    }
+  };
+  return c.json({error: "error while logging out, session seems to not exist"});
 })
 
 // create_room
