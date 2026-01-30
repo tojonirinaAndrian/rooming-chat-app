@@ -1,4 +1,5 @@
 'use client';
+import axios from "axios";
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 
@@ -26,9 +27,14 @@ export default function SignIn () {
     const [isThereErrors, setIsThereErrors] = useState<boolean>(false);
     const [isContinuing, startContinuing] = useTransition();
     const onContinuingClick = () => {
-        startContinuing (() => {
+        startContinuing (async () => {
             // await from the backend
             // TODO : Try connection to the backend
+            // const response = await axios.post("http://localhost:3000/api/login",{
+            //     email, password   
+            // });
+            //test
+            const response = await axios.get("http://localhost:3000");
         });
     };
     const continuingConditions: boolean = ((email.length > 0) && (password.length > 0) && (isThereErrors === false));

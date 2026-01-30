@@ -17,7 +17,7 @@ const SESSION_TTL: number = Number(process.env.SESSION_TTL);
 const COOKIE_NAME: string = 'sessionId';
 
 app.get('/', (c) => {
-  return c.text('Hello Hono!')
+  return c.text('Hello Hono!');
 });
 
 // middleware that would run befor every api req :
@@ -188,7 +188,7 @@ app.post("/api/login", async (c) => {
         c.header("Set-Cookie", `${COOKIE_NAME}) = ${userSession.sessionId}; ${cookieOptions (SESSION_TTL)}`);
         return c.text("doneLoggingIn");
       } catch (error) {
-        console.log(error)
+        return c.text("errorWhenCreatingSession");
       }
     }
     return c.text("emailDoesNotExist");

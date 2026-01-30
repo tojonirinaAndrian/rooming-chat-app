@@ -4,16 +4,16 @@ import { useState } from "react";
 import CreateRoom from "./components/createRoom";
 import SignIn from "./components/signIn";
 import SignUp from "./components/signUp";
+import { useGlobalStore } from "./store/use-globale-store";
 
 
 export default function Home() {
-  const [username, setUsername] = useState("Your username");
-  
+  const {whereIsPrincipal, setWhereIsPrincipal} = useGlobalStore()  
   return (
    <>
-   <CreateRoom />
-   {/* <SignIn /> */}
-   {/* <SignUp /> */}
+   {whereIsPrincipal === "signin" && <SignIn />}
+   {whereIsPrincipal === "signup" && <SignUp />}
+   {whereIsPrincipal === "createRoom" && <CreateRoom />}
    </>
   );
 }
