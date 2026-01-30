@@ -346,11 +346,11 @@ app.get("/api/createRandomUsers", async (c) => {
     const new_users: {
       name: string, email: string, password: string
     }[] = [{
-      name: "User1", email: "user1@email.com", password: await bcrypt.hash("pass1", 10)
+      name: "User1", email: "user1@email.com", password: await bcrypt.hash("passPass1!", 10)
     }, {
-      name: "User2", email: "user2@email.com", password: await bcrypt.hash("pass1", 10)
+      name: "User2", email: "user2@email.com", password: await bcrypt.hash("passPass2!", 10)
     }, {
-      name: "User3", email: "user3@email.com", password: await bcrypt.hash("pass1", 10)
+      name: "User3", email: "user3@email.com", password: await bcrypt.hash("passPass3!", 10)
     }];
     
     const data = await prismaClient.user.createMany({
