@@ -195,7 +195,7 @@ app.post("/api/singup", async (c) => {
         sessionId: number, expiresAt: Date
       } = await createSession (createdUser.id, ipAddress, userAgent);
       c.header("Set-Cookie", `${COOKIE_NAME}) = ${userSession.sessionId}; ${cookieOptions (SESSION_TTL)}`);
-      return c.text("doneSigninUp");
+      return c.text("doneSigningUp");
     } catch (error) {
       console.log(error)
     }

@@ -45,7 +45,7 @@ export default function SignIn () {
             }
             else if (response.data === "errorWhenCreatingSession") {
                 console.log("TRY AGAIN")
-            } else if (response.data === "doneLoggingIn") {
+            } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
                 const response = await axios.get("http://localhost:3000/api/getCurrentUser");
                 setCurrentUser(response.data.user);
                 setWhereIsPrincipal("createRoom");
