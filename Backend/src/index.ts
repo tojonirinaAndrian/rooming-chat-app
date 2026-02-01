@@ -205,6 +205,19 @@ app.post("/api/singup", async (c) => {
   }
 })
 
+// getCurrentUser
+app.get("/api/getCurrentUser", async (c) => {
+  if ((c as any).user && (c as any).session) {
+    return c.json({user: {
+      name: (c as any).user.name,
+      email: (c as any).user.email,
+      id: (c as any).user.id
+    }})
+  } else {
+    return c.text("notLoggedIn");
+  }
+})
+
 // logout
 app.get("/api/logout", async (c) => {
   const session = (c as any).session;

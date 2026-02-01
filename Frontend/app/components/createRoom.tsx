@@ -1,11 +1,25 @@
 "use client";
 
-import { ChangeEvent, useState, useTransition } from "react";
+import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import axios from "axios";
+import { useGlobalStore } from "../store/use-globale-store";
+import { useRouter } from "next/navigation";
 
 export default function CreateRoom () {
+    const router = useRouter();
+    const { 
+       loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal 
+    } = useGlobalStore()
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
+    const [firstEntry, setFirstEntry] = useState<boolean>(true);
+    
+    useEffect(() => {
+        if (!loggedIn) {
+            setWhereIsPrincipal("login");
+        };
+    }, [firstEntry]);
+
     //TODO : Create a function that triggers then the button create room is clicked
     const onCreateRoomClick = () => {
         startCreatingRoom(async () => {

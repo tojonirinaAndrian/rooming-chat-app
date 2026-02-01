@@ -2,6 +2,7 @@
 import axios from "axios";
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
+import { useGlobalStore } from "../store/use-globale-store";
 
 const emailSchema = z
 .string()
@@ -19,6 +20,8 @@ const passwordSchema = z
 .refine((val) => /[^A-Za-z0-9]/.test(val), "Password must contain a special character");
 
 export default function SignIn () {
+    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn} = useGlobalStore();
+    
     const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
     const [email, setEmail] = useState<string>("");
@@ -34,6 +37,19 @@ export default function SignIn () {
                 email, password   
             });
             console.log(response);
+            if (response.data === "emailDoesnNotExist") {
+                setEmailErrors(true);
+            }
+            else if (response.data === "incorrectPassword") {
+                setPasswordErrors(["Incorrect password"]);
+            }
+            else if (response.data === "errorWhenCreatingSession") {
+                console.log("TRY AGAIN")
+            } else if (response.data === "doneLoggingIn") {
+                const response = await axios.get("http://localhost:3000/api/getCurrentUser");
+                setCurrentUser(response.data.user);
+                setWhereIsPrincipal("createRoom");
+            }
         });
     };
     const continuingConditions: boolean = ((email.length > 0) && (password.length > 0) && (isThereErrors === false));
@@ -83,7 +99,7 @@ export default function SignIn () {
                         className="border rounded-sm p-3 w-full border-slate-200"
                     />
                     {emailErrors && <p className="mx-2 text-sm text-red-500">
-                        * Invalid email 
+                        * Invalid or wrong email 
                     </p>}
                 </div>
                 <div className="">

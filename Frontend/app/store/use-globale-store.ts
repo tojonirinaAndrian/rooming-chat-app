@@ -6,7 +6,15 @@ import { persist } from 'zustand/middleware';
 type whereIsPrincipalType = "login" | "signup" | "createRoom"
 interface useStoreProps {
     whereIsPrincipal: whereIsPrincipalType,
-    setWhereIsPrincipal: (arg0: whereIsPrincipalType) => void
+    setWhereIsPrincipal: (arg0: whereIsPrincipalType) => void,
+    loggedIn: boolean,
+    setLoggedIn: (arg0: boolean) => void,
+    currentUser: {
+        name: string, email: string, id: number
+    },
+     setCurrentUser: (arg0: {
+        name: string, email: string, id: number
+    }) => void;
 }
 
 export const useGlobalStore = create<useStoreProps>() (
@@ -18,6 +26,26 @@ export const useGlobalStore = create<useStoreProps>() (
                     return ({
                         whereIsPrincipal: where
                     })
+                })
+            },
+            loggedIn: false,
+            setLoggedIn: (state: boolean) => {
+                set(() => {
+                    return ({
+                        loggedIn: state
+                    })
+                })
+            },
+            currentUser: {
+                name: "", id: 0, email: ""
+            }, 
+            setCurrentUser: (currentUser: {
+                name: string, email: string, id: number
+            }) => {
+                set(() => {
+                    return {
+                        currentUser
+                    }
                 })
             }
         }), {

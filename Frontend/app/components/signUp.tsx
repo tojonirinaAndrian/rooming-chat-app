@@ -1,4 +1,5 @@
 'use client';
+import axios from "axios";
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 
@@ -28,9 +29,13 @@ export default function SignUp () {
     const [usernameError, setUsernameError] = useState<string>("");
     const [isContinuing, startContinuing] = useTransition();
     const onContinuingClick = () => {
-        startContinuing (() => {
+        startContinuing (async () => {
             // await from the backend
             // TODO : Try connection to the backend
+            const response = await axios.post("http://localhost:3000/api/singup",{
+                name: username, email, password
+            });
+            
         });
     };
     const continuingConditions: boolean = ((email.length > 0) && (password.length > 0) && (isThereErrors === false) && (username.length > 0));
