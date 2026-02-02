@@ -15,11 +15,13 @@ interface useStoreProps {
      setCurrentUser: (arg0: {
         name: string, email: string, id: number
     }) => void;
+    hasHydrated: boolean;
 }
 
 export const useGlobalStore = create<useStoreProps>() (
 	persist (
         (set, get) => ({
+            hasHydrated: false,
             whereIsPrincipal: "login",
             setWhereIsPrincipal : (where: whereIsPrincipalType) => {
                 set(() => {
@@ -47,9 +49,14 @@ export const useGlobalStore = create<useStoreProps>() (
                         currentUser
                     }
                 })
-            }
+            },
         }), {
-            name: "global"
+            name: "global",
+            onRehydrateStorage: () => (state) => {
+                if (state) {
+                    state.hasHydrated = true;
+                }
+            }
         }
     )
 )

@@ -10,13 +10,20 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-  const {whereIsPrincipal, setWhereIsPrincipal, loggedIn} = useGlobalStore()
+  const {whereIsPrincipal, setWhereIsPrincipal, loggedIn, hasHydrated} = useGlobalStore();
+  
   useEffect(() => {
-    if (whereIsPrincipal === "login") router.push("/login");
-    if (whereIsPrincipal === "signup") router.push("/signup");
-    if (whereIsPrincipal === "createRoom") router.push("/create_room");
-    if (whereIsPrincipal === "joinRoom") router.push("/join_room");
-  }, [whereIsPrincipal])
+    if (hasHydrated) {
+      if (loggedIn) {
+        setWhereIsPrincipal("createRoom");
+        router.push("/create_room");
+      } else {
+        setWhereIsPrincipal("login");
+        router.push("/login");
+      }
+    }
+  }, [hasHydrated]);
+
   return (
    <>
     {/*

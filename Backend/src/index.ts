@@ -29,20 +29,7 @@ app.use('*', cors({
 
 // middleware that would run before every api req :
 app.use("*", async (c, next) => {
-    // const cookieHeader: string = c.req.header("cookie") || "";
-    // console.log("cookieHeader : " + cookieHeader);
-    // const cookies = Object.fromEntries(
-    //   cookieHeader
-    //   .split(";")
-    //   .map((s: string) => s.trim())
-    //   .filter(Boolean)
-    //   .map(pair => {
-    //   const [k, ...v] = pair.split('=')
-    //   return [k, decodeURIComponent(v.join('='))]
-    //   })
-    // );
-    // // checking the sessionId from the cookie
-    // const sessionId = Number((cookies as Record<string, string>)[COOKIE_NAME])
+    
     const sessionId = Number(getCookie(c, COOKIE_NAME));
     console.log("sessionId from cookie : " + sessionId);
     if (!sessionId) return await next();
@@ -219,7 +206,7 @@ app.post("/api/signup", async (c) => {
       const userSession: {
         sessionId: number, expiresAt: Date
       } = await createSession (createdUser.id, ipAddress, userAgent);
-      
+
       const generatedCookiesOptions = cookieOptions(SESSION_TTL);
       setCookie(c, COOKIE_NAME, String(userSession.sessionId), {
         httpOnly: generatedCookiesOptions.httpOnly,

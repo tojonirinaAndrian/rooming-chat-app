@@ -23,7 +23,7 @@ const passwordSchema = z
 .refine((val) => /[^A-Za-z0-9]/.test(val), "Password must contain a special character");
 
 export default function SignIn () {
-    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn} = useGlobalStore();
+    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn, loggedIn, hasHydrated} = useGlobalStore();
     const router = useRouter();
     const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
@@ -33,7 +33,7 @@ export default function SignIn () {
     const [isThereErrors, setIsThereErrors] = useState<boolean>(false);
     const [isContinuing, startContinuing] = useTransition();
     const [signingError, setSigningError] = useState<string>("");
-
+    console.log("loggedIn: ", loggedIn);
     const onContinuingClick = () => {
         startContinuing (async () => {
             // await from the backend
@@ -53,10 +53,9 @@ export default function SignIn () {
             } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
                 const response = await axiosInstance.get("/api/getCurrentUser");
                 setCurrentUser(response.data.user);
-                console.log(response.data);
-                // setWhereIsPrincipal("createRoom");
-                // setLoggedIn(true);
-                // router.push("/create_room");
+                setWhereIsPrincipal("createRoom");
+                setLoggedIn(true);
+                router.push("/create_room");
             }
         });
     };

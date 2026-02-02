@@ -10,20 +10,21 @@ import axiosInstance from "../axios/axiosInstance";
 export default function JoinRoom () {
     const router = useRouter();
     const { 
-       loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal 
+       loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated
     } = useGlobalStore()
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
     const [roomId, setRoomId] = useState<string> ("");
-    const [firstEntry, setFirstEntry] = useState<boolean>(true);
     const [roomNameError, setRoomNameError] = useState<string>("");
 
     useEffect(() => {
-        if (!loggedIn) {
-            setWhereIsPrincipal("login");
-            router.push("/login");
-        };
-    }, [firstEntry]);
+        if (hasHydrated) {
+            if (loggedIn === false) {
+                setWhereIsPrincipal("login");
+                router.push("/login");
+            }
+        }
+    }, [hasHydrated]);
 
     //TODO : Create a function that triggers then the button create room is clicked
     const onCreateRoomClick = () => {
