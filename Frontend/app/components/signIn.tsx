@@ -142,6 +142,11 @@ export default function SignIn () {
                     }
                 }}
             >{isContinuing ? "Continuing..." : "Continue"}</button>
+            <p className="text-center text-black/50 w-[80%] m-auto">
+                Don't have an account ? Click <span className="font-medium underline cursor-pointer"
+                onClick = {() => setWhereIsPrincipal("signup")}
+                >here</span>.
+            </p>
         </div>            
     </div>
 }
