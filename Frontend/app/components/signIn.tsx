@@ -31,6 +31,7 @@ export default function SignIn () {
     const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
     const [isThereErrors, setIsThereErrors] = useState<boolean>(false);
     const [isContinuing, startContinuing] = useTransition();
+    const [signingError, setSigningError] = useState<string>("");
 
     const onContinuingClick = () => {
         startContinuing (async () => {
@@ -40,14 +41,14 @@ export default function SignIn () {
                 email, password   
             });
             console.log(response);
-            if (response.data === "emailDoesnNotExist") {
-                setEmailErrors(true);
+            if (response.data === "emailDoesNotExist") {
+                setSigningError("Email does not exist");
             }
             else if (response.data === "incorrectPassword") {
-                setPasswordErrors(["Incorrect password"]);
+                setSigningError("Incorrect password");
             }
             else if (response.data === "errorWhenCreatingSession") {
-                console.log("TRY AGAIN");
+                setSigningError("An error happened when creating the session, please try again");
             } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
                 const response = await axios.get("http://localhost:3000/api/getCurrentUser");
                 setCurrentUser(response.data.user);
@@ -66,7 +67,7 @@ export default function SignIn () {
 
     const onEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
         // setEmailErrors if errors;
-        const value: string = e.target.value;
+        const value: string = e.target.value.trim();
         const result = emailSchema.safeParse(value);
         if (result.success) {
             setEmailErrors(false);
@@ -78,7 +79,7 @@ export default function SignIn () {
     };
 
     const onPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value: string = e.target.value;
+        const value: string = e.target.value.trim();
         const result = passwordSchema.safeParse(value);
         if (result.success) {
             setPasswordErrors([]);
@@ -137,7 +138,10 @@ export default function SignIn () {
                     </ul>}
                 </div>
             </div>
-             <button 
+            {signingError.length > 0 && <p className="mx-2 text-sm text-red-500 text-center">
+                * {signingError}
+            </p>}
+            <button 
                 className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(!continuingConditions || isContinuing) && " opacity-50 "}`}                
                 onClick={() => {
                     if (continuingConditions) {

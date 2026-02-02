@@ -43,14 +43,14 @@ export default function JoinRoom () {
         })
     }
     const onRoomNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+        const value = e.target.value.trim();
         setRoomName(value);
         if (value.length > 5) {
             setRoomNameError("");
         }
     }
     const onRoomIdChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+        const value = e.target.value.trim();
         setRoomId(value);
     }
     return <>

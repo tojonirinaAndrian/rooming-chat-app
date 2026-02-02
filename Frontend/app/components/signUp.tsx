@@ -33,6 +33,7 @@ export default function SignUp () {
     const [username, setUsername] = useState<string>("");
     const [usernameError, setUsernameError] = useState<string>("");
     const [isContinuing, startContinuing] = useTransition();
+    const [signupError, setSignupError] = useState<string>("");
 
     const onContinuingClick = () => {
         startContinuing (async () => {
@@ -42,9 +43,9 @@ export default function SignUp () {
                 name: username, email, password
             });
             if (response.data === "couldntSignUp") {
-                console.log("ERROR!")
+                setSignupError("An error happened when trying to sign up, please try again");
             } else if (response.data === "register") {
-                console.log("try LOgging in")
+                setSignupError("An account with this email already exists, please try logging in");
             } else if (response.data === "doneSigningUp" || response.data === "loggedIn") {
                 const response = await axios.get("http://localhost:3000/api/getCurrentUser");
                 setCurrentUser(response.data.user);
@@ -63,7 +64,7 @@ export default function SignUp () {
     );
     
     const onUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value: string = e.target.value;
+        const value: string = e.target.value.trim();
         if (value.length <= 0) {
             setUsernameError("Fill the field");
         } else {
@@ -74,7 +75,7 @@ export default function SignUp () {
 
     const onEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
         // setEmailErrors if errors;
-        const value: string = e.target.value;
+        const value: string = e.target.value.trim();
         const result = emailSchema.safeParse(value);
         if (result.success) {
             setEmailErrors(false);
@@ -86,7 +87,7 @@ export default function SignUp () {
     };
 
     const onPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value: string = e.target.value;
+        const value: string = e.target.value.trim();
         const result = passwordSchema.safeParse(value);
         if (result.success) {
             setPasswordErrors([]);
@@ -157,7 +158,10 @@ export default function SignUp () {
                     </ul>}
                 </div>
             </div>
-             <button 
+            {signupError.length > 0 && <p className="mx-2 text-sm text-red-500 text-center">
+                * {signupError}
+            </p>}
+            <button 
                 className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(!continuingConditions || isContinuing) && " opacity-50 "}`}                
                 onClick={() => {
                     if (continuingConditions) {
