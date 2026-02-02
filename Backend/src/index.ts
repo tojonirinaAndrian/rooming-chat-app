@@ -199,7 +199,7 @@ app.post("/api/singup", async (c) => {
     } catch (error) {
       console.log(error)
     }
-    return c.text("emailDoesNotExist");
+    return c.text("couldntSignUp");
   } catch(error) {
     console.log(error);
   }
@@ -265,12 +265,17 @@ app.post("/api/createRoom", async (c) => {
       }
     });
     return c.json ({
-      createdRoom,
+      createdRoom: {
+        room_name: createdRoom.room_name,
+        room_id: createdRoom.id
+      },
       message: "success"
     });
 
   } catch(e) {
-    return c.json({error : e});
+    return c.json({error : e,
+      message: "error"
+    });
   }
 });
 

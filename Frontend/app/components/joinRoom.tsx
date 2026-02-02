@@ -6,13 +6,14 @@ import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";
 
-export default function CreateRoom () {
+export default function JoinRoom () {
     const router = useRouter();
     const { 
        loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal 
     } = useGlobalStore()
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
+    const [roomId, setRoomId] = useState<string> ("");
     const [firstEntry, setFirstEntry] = useState<boolean>(true);
     const [roomNameError, setRoomNameError] = useState<string>("");
 
@@ -26,9 +27,17 @@ export default function CreateRoom () {
     const onCreateRoomClick = () => {
         startCreatingRoom(async () => {
             //TODO : Call from backend;
-            if (roomName.length > 0) {
-                const res = await axios.get("/api/createRoom");
-                console.log("res : " + res.data);
+            if (roomName.length < 5) {
+                setRoomNameError("* must be at least 5 characters");
+                return
+            }
+            const res = await axios.post(`/api/joinRoom/${roomName}/${roomId}`);
+            console.log("res : " + res.data);
+            if (res.data.message === "error") {
+                console.log("An error happened");
+            }
+            else if (res.data.message === "success") {
+                console.log("success");
             }
         })
     }
@@ -39,7 +48,10 @@ export default function CreateRoom () {
             setRoomNameError("");
         }
     }
-
+    const onRoomIdChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setRoomId(value);
+    }
     return <>
         <div className="w-full h-dvh flex items-center justify-center flex-col">
             <HeaderComponent />
@@ -49,7 +61,8 @@ export default function CreateRoom () {
                     <p className=" text-slate-600">Please enter the room name</p>
                 </div>
                 <div className="space-y-1">
-                    <label htmlFor="room_name">Room name :</label>
+                    <div className="space-y-1">
+                        <label htmlFor="room_name">Room name :</label>
                         <input 
                             name="room_name"
                             onChange={(e) => onRoomNameChange(e)} 
@@ -58,7 +71,17 @@ export default function CreateRoom () {
                         />
                         {roomNameError.length > 0 && <p className="text-red">
                             {roomNameError}
-                        </p>} 
+                        </p>}    
+                    </div>
+                    <div className="space-y-1">
+                        <label htmlFor="room_id">Room id :</label>
+                        <input 
+                            name="room_id"
+                            onChange={(e) => onRoomIdChange(e)} 
+                            type="text" 
+                            className="p-3 rounded-sm border border-slate-200 w-full " placeholder="enter room id..."
+                        />
+                    </div>
                     <button 
                         className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(creatingRoom || roomName.length <= 0) && " opacity-50 "}`}
                         onClick={(e) => {

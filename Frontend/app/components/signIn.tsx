@@ -3,6 +3,7 @@ import axios from "axios";
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 import { useGlobalStore } from "../store/use-globale-store";
+import HeaderComponent from "./header";
 
 const emailSchema = z
 .string()
@@ -29,6 +30,7 @@ export default function SignIn () {
     const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
     const [isThereErrors, setIsThereErrors] = useState<boolean>(false);
     const [isContinuing, startContinuing] = useTransition();
+
     const onContinuingClick = () => {
         startContinuing (async () => {
             // await from the backend
@@ -44,7 +46,7 @@ export default function SignIn () {
                 setPasswordErrors(["Incorrect password"]);
             }
             else if (response.data === "errorWhenCreatingSession") {
-                console.log("TRY AGAIN")
+                console.log("TRY AGAIN");
             } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
                 const response = await axios.get("http://localhost:3000/api/getCurrentUser");
                 setCurrentUser(response.data.user);
@@ -52,7 +54,13 @@ export default function SignIn () {
             }
         });
     };
-    const continuingConditions: boolean = ((email.length > 0) && (password.length > 0) && (isThereErrors === false));
+
+    const continuingConditions: boolean = (
+        (email.length > 0) && 
+        (password.length > 0) && 
+        (isThereErrors === false)
+    );
+
     const onEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
         // setEmailErrors if errors;
         const value: string = e.target.value;
@@ -64,7 +72,7 @@ export default function SignIn () {
             setEmailErrors(true);
             setEmail("");
         }
-    }
+    };
 
     const onPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value: string = e.target.value;
@@ -77,11 +85,11 @@ export default function SignIn () {
             const messages: string[] = result.error.issues.map((err) => err.message);
             setPasswordErrors(messages);
         }
-    }
+    };
 
     useEffect(() => {
         !(emailErrors && passwordErrors.length > 0) ? setIsThereErrors(false) : setIsThereErrors(true);
-    }, [email, password])
+    }, [email, password]);
     
     return <div className="w-full h-dvh flex items-center justify-center flex-col">
         <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">

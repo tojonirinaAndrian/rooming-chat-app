@@ -1,19 +1,24 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateRoom from "./components/createRoom";
 import SignIn from "./components/signIn";
 import SignUp from "./components/signUp";
 import { useGlobalStore } from "./store/use-globale-store";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const {whereIsPrincipal, setWhereIsPrincipal, loggedIn} = useGlobalStore()
+  useEffect(() => {
+    if (whereIsPrincipal === "login") router.push("/login");
+    if (whereIsPrincipal === "signup") router.push("/signup");
+    if (whereIsPrincipal === "createRoom") router.push("/create_room");
+    if (whereIsPrincipal === "joinRoom") router.push("/join_room");
+  }, [whereIsPrincipal])
   return (
    <>
-    {whereIsPrincipal === "login" && <SignIn />}
-    {whereIsPrincipal === "signup" && <SignUp />}
-    {whereIsPrincipal === "createRoom" && <CreateRoom />}
     {/*
       <div className="w-full h-dvh flex justify-center items-center">
         <button

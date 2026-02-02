@@ -2,6 +2,7 @@
 import axios from "axios";
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
+import { useGlobalStore } from "../store/use-globale-store";
 
 const emailSchema = z
 .string()
@@ -19,6 +20,8 @@ const passwordSchema = z
 .refine((val) => /[^A-Za-z0-9]/.test(val), "Password must contain a special character");
 
 export default function SignUp () {
+    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn} = useGlobalStore();
+    
     const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
     const [email, setEmail] = useState<string>("");
@@ -28,6 +31,7 @@ export default function SignUp () {
     const [username, setUsername] = useState<string>("");
     const [usernameError, setUsernameError] = useState<string>("");
     const [isContinuing, startContinuing] = useTransition();
+
     const onContinuingClick = () => {
         startContinuing (async () => {
             // await from the backend
@@ -35,10 +39,24 @@ export default function SignUp () {
             const response = await axios.post("http://localhost:3000/api/singup",{
                 name: username, email, password
             });
-            
+            if (response.data === "couldntSignUp") {
+                console.log("ERROR!")
+            } else if (response.data === "register") {
+                console.log("try LOgging in")
+            } else if (response.data === "doneSigningUp" || response.data === "loggedIn") {
+                const response = await axios.get("http://localhost:3000/api/getCurrentUser");
+                setCurrentUser(response.data.user);
+                setWhereIsPrincipal("createRoom");
+            }
         });
     };
-    const continuingConditions: boolean = ((email.length > 0) && (password.length > 0) && (isThereErrors === false) && (username.length > 0));
+    
+    const continuingConditions: boolean = (
+        (email.length > 0) && 
+        (password.length > 0) && 
+        (isThereErrors === false) && 
+        (username.length > 0)
+    );
     
     const onUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value: string = e.target.value;
