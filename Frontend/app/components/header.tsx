@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useGlobalStore } from "../store/use-globale-store"
 
 export default function HeaderComponent () {
+    const router = useRouter();
     const { currentUser, whereIsPrincipal, setWhereIsPrincipal } = useGlobalStore();
     return <>
         <header className="fixed top-3 w-[95dvw] bg-white flex justify-between p-3 rounded-sm shadow-sm">
@@ -17,6 +18,7 @@ export default function HeaderComponent () {
                 <button className="bg-black text-white  rounded-sm p-3"
                 onClick={() => {
                     setWhereIsPrincipal("joinRoom");
+                    router.push("/join_room");
                 }}
                 >
                     Join a room
@@ -26,6 +28,7 @@ export default function HeaderComponent () {
                 <button className="bg-black text-white  rounded-sm p-3"
                 onClick={() => {
                     setWhereIsPrincipal("createRoom");
+                    router.push("/create_room");
                 }}
                 >
                     Create a room

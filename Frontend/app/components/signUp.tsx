@@ -3,6 +3,7 @@ import axios from "axios";
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 import { useGlobalStore } from "../store/use-globale-store";
+import { useRouter } from "next/navigation";
 
 const emailSchema = z
 .string()
@@ -21,7 +22,8 @@ const passwordSchema = z
 
 export default function SignUp () {
     const {setCurrentUser, setWhereIsPrincipal, setLoggedIn} = useGlobalStore();
-    
+    const router = useRouter();
+
     const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
     const [email, setEmail] = useState<string>("");
@@ -47,6 +49,8 @@ export default function SignUp () {
                 const response = await axios.get("http://localhost:3000/api/getCurrentUser");
                 setCurrentUser(response.data.user);
                 setWhereIsPrincipal("createRoom");
+                setLoggedIn(true);
+                router.push("/create_room");
             }
         });
     };
@@ -163,7 +167,7 @@ export default function SignUp () {
             >{isContinuing ? "Continuing..." : "Continue"}</button>
             <p className="text-center text-black/50 w-[80%] m-auto">
                 Don't have an account ? Click <span className="font-medium underline cursor-pointer"
-                onClick = {() => setWhereIsPrincipal("login")}
+                onClick = {() => {setWhereIsPrincipal("login"); router.push("/login")}}
                 >here</span>.
             </p>
         </div>            

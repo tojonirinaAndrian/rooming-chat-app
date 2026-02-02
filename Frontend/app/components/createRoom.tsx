@@ -19,6 +19,7 @@ export default function CreateRoom () {
     useEffect(() => {
         if (!loggedIn) {
             setWhereIsPrincipal("login");
+            router.push("/login")
         };
     }, [firstEntry]);
 

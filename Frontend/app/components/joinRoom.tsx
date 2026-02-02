@@ -20,6 +20,7 @@ export default function JoinRoom () {
     useEffect(() => {
         if (!loggedIn) {
             setWhereIsPrincipal("login");
+            router.push("/login");
         };
     }, [firstEntry]);
 
