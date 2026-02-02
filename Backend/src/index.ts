@@ -219,7 +219,18 @@ app.post("/api/signup", async (c) => {
       const userSession: {
         sessionId: number, expiresAt: Date
       } = await createSession (createdUser.id, ipAddress, userAgent);
-      c.header("Set-Cookie", `${COOKIE_NAME}) = ${userSession.sessionId}; ${cookieOptions (SESSION_TTL)}`);
+      
+      const generatedCookiesOptions = cookieOptions(SESSION_TTL);
+      setCookie(c, COOKIE_NAME, String(userSession.sessionId), {
+        httpOnly: generatedCookiesOptions.httpOnly,
+        sameSite: generatedCookiesOptions.sameSite,
+        path: generatedCookiesOptions.path,
+        maxAge: Number(generatedCookiesOptions.maxAge),
+        secure: generatedCookiesOptions.secure,
+        domain: generatedCookiesOptions.domain,
+        expires: generatedCookiesOptions.expires
+      });
+
       return c.text("doneSigningUp");
     } catch (error) {
       console.log(error)
