@@ -4,6 +4,7 @@ import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
+import axiosInstance from "../axios/axiosInstance";
 
 const emailSchema = z
 .string()
@@ -39,7 +40,7 @@ export default function SignUp () {
         startContinuing (async () => {
             // await from the backend
             // TODO : Try connection to the backend
-            const response = await axios.post("http://localhost:3000/api/singup",{
+            const response = await axiosInstance.post("/api/signup",{
                 name: username, email, password
             });
             if (response.data === "couldntSignUp") {
@@ -47,7 +48,7 @@ export default function SignUp () {
             } else if (response.data === "register") {
                 setSignupError("An account with this email already exists, please try logging in");
             } else if (response.data === "doneSigningUp" || response.data === "loggedIn") {
-                const response = await axios.get("http://localhost:3000/api/getCurrentUser");
+                const response = await axiosInstance.get("/api/getCurrentUser");
                 setCurrentUser(response.data.user);
                 setWhereIsPrincipal("createRoom");
                 setLoggedIn(true);

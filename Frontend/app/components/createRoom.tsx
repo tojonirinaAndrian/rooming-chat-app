@@ -5,6 +5,7 @@ import axios from "axios";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";
+import axiosInstance from "../axios/axiosInstance";
 
 export default function CreateRoom () {
     const router = useRouter();
@@ -28,7 +29,7 @@ export default function CreateRoom () {
         startCreatingRoom(async () => {
             //TODO : Call from backend;
             if (roomName.length > 0) {
-                const res = await axios.get("/api/createRoom");
+                const res = await axiosInstance.get("/api/createRoom");
                 console.log("res : " + res.data);
             }
         })

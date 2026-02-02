@@ -8,6 +8,8 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { Server as SocketIOServer } from 'socket.io';
 import dotenv from "dotenv";
 import bcrypt from 'bcryptjs';
+import { setCookie } from 'hono/cookie';
+import { getCookie } from 'hono/cookie';
 
 dotenv.config();
 
@@ -27,22 +29,26 @@ app.use('*', cors({
 
 // middleware that would run before every api req :
 app.use("*", async (c, next) => {
-    const cookieHeader: string = c.req.header("cookie") || "";
-    const cookies = Object.fromEntries(
-      cookieHeader
-      .split(";")
-      .map((s: string) => s.trim())
-      .filter(Boolean)
-      .map(pair => {
-      const [k, ...v] = pair.split('=')
-      return [k, decodeURIComponent(v.join('='))]
-      })
-    );
-    // checking the sessionId from the cookie
-    const sessionId = Number((cookies as Record<string, string>)[COOKIE_NAME])
+    // const cookieHeader: string = c.req.header("cookie") || "";
+    // console.log("cookieHeader : " + cookieHeader);
+    // const cookies = Object.fromEntries(
+    //   cookieHeader
+    //   .split(";")
+    //   .map((s: string) => s.trim())
+    //   .filter(Boolean)
+    //   .map(pair => {
+    //   const [k, ...v] = pair.split('=')
+    //   return [k, decodeURIComponent(v.join('='))]
+    //   })
+    // );
+    // // checking the sessionId from the cookie
+    // const sessionId = Number((cookies as Record<string, string>)[COOKIE_NAME])
+    const sessionId = Number(getCookie(c, COOKIE_NAME));
+    console.log("sessionId from cookie : " + sessionId);
     if (!sessionId) return await next();
     else {
       // finding it in the DB
+      console.log("sessionId : " + sessionId);
       const session = await prismaClient.session.findUnique({
           where: {
               sessionId
@@ -51,27 +57,27 @@ app.use("*", async (c, next) => {
       if (!session) return await next();
       if (session.isRevoked) return await next(); // continues if isRevoked
       if (session.expiresAt < new Date()) {
-      try {
-          // revoke it if the date is expired
-          await prismaClient.session.update({
-              where: { 
-                  sessionId 
-              }, data: { 
-                  isRevoked: true 
-              }
-          });
-      } catch (e) {
-        console.log(e)
-      }
-      return await next();
+        try {
+            // revoke it if the date is expired
+            await prismaClient.session.update({
+                where: { 
+                    sessionId 
+                }, data: { 
+                    isRevoked: true 
+                }
+            });
+        } catch (e) {
+          console.log(e)
+        }
+        return await next();
       } else {
-      // adding new items to hono context "c"
-      (c as any).session = session;
-      const user = await prismaClient.user.findUnique ({
-          where: { id: Number(session.userId) }
-      });
-      (c as any).user = user;
-      return await next();
+        // adding new items to hono context "c"
+        (c as any).session = session;
+        const user = await prismaClient.user.findUnique ({
+            where: { id: Number(session.userId) }
+        });
+        (c as any).user = user;
+        return await next();
       }
   }
 })
@@ -100,9 +106,17 @@ const createSession = async (
 }
 
 // returning cookieOptions string
-const cookieOptions = (maxAgeSeconds: number): string => {
-  const secure: string = process.env.NODE_ENV === "production" ? "Secure; " : "";
-  return `HttpOnly; ${secure}SameSite=Strict; Path=/; Max-Age=${maxAgeSeconds}`
+const cookieOptions = (maxAgeSeconds: number) => {
+  const secure: boolean = (process.env.NODE_ENV === 'production');
+  return {
+    httpOnly: true,
+    sameSite: 'Strict' as "Strict",
+    path: "/",
+    maxAge: maxAgeSeconds.toString(),
+    secure: secure,
+    domain: process.env.COOKIE_DOMAIN || undefined,
+    expires: new Date(Date.now() + (SESSION_TTL * 1000))
+  }
 }
 
 // deleting all expired sessions
@@ -153,7 +167,18 @@ app.post("/api/login", async (c) => {
         const userSession: {
           sessionId: number, expiresAt: Date
         } = await createSession (userIfExists.id, ipAddress, userAgent);
-        c.header("Set-Cookie", `${COOKIE_NAME}) = ${userSession.sessionId}; ${cookieOptions (SESSION_TTL)}`);
+        const generatedCookiesOptions = cookieOptions(SESSION_TTL);
+
+        setCookie(c, COOKIE_NAME, String(userSession.sessionId), {
+          httpOnly: generatedCookiesOptions.httpOnly,
+          sameSite: generatedCookiesOptions.sameSite,
+          path: generatedCookiesOptions.path,
+          maxAge: Number(generatedCookiesOptions.maxAge),
+          secure: generatedCookiesOptions.secure,
+          domain: generatedCookiesOptions.domain,
+          expires: generatedCookiesOptions.expires
+        });
+        
         return c.text("doneLoggingIn");
       } catch (error) {
         return c.text("errorWhenCreatingSession");
@@ -166,7 +191,7 @@ app.post("/api/login", async (c) => {
 })
 
 // signup
-app.post("/api/singup", async (c) => {
+app.post("/api/signup", async (c) => {
   if ((c as any).session && (c as any).user) {
     return c.text("loggedIn");
   };

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useGlobalStore } from "../store/use-globale-store";
 import HeaderComponent from "./header";
 import { useRouter } from "next/navigation";
+import axiosInstance from "../axios/axiosInstance";
 
 const emailSchema = z
 .string()
@@ -37,8 +38,8 @@ export default function SignIn () {
         startContinuing (async () => {
             // await from the backend
             // TODO : Try connection to the backend
-            const response = await axios.post("http://localhost:3000/api/login",{
-                email, password   
+            const response = await axiosInstance.post("/api/login",{
+                email, password
             });
             console.log(response);
             if (response.data === "emailDoesNotExist") {
@@ -50,11 +51,12 @@ export default function SignIn () {
             else if (response.data === "errorWhenCreatingSession") {
                 setSigningError("An error happened when creating the session, please try again");
             } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
-                const response = await axios.get("http://localhost:3000/api/getCurrentUser");
+                const response = await axiosInstance.get("/api/getCurrentUser");
                 setCurrentUser(response.data.user);
-                setWhereIsPrincipal("createRoom");
-                setLoggedIn(true);
-                router.push("/create_room");
+                console.log(response.data);
+                // setWhereIsPrincipal("createRoom");
+                // setLoggedIn(true);
+                // router.push("/create_room");
             }
         });
     };

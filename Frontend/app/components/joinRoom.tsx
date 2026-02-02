@@ -5,6 +5,7 @@ import axios from "axios";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";
+import axiosInstance from "../axios/axiosInstance";
 
 export default function JoinRoom () {
     const router = useRouter();
@@ -32,7 +33,7 @@ export default function JoinRoom () {
                 setRoomNameError("* must be at least 5 characters");
                 return
             }
-            const res = await axios.post(`/api/joinRoom/${roomName}/${roomId}`);
+            const res = await axiosInstance.post(`/api/joinRoom/${roomName}/${roomId}`);
             console.log("res : " + res.data);
             if (res.data.message === "error") {
                 console.log("An error happened");
