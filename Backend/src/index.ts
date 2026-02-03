@@ -252,6 +252,8 @@ app.get("/api/logout", async (c) => {
         }
       });
       deleteCookie(c, COOKIE_NAME);
+      (c as any).session = null;
+      (c as any).user = null;
       return c.json({message: "logoutSuccessful"});
     } catch (error) {
       return c.json({error});

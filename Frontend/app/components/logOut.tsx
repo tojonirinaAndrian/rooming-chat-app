@@ -1,3 +1,10 @@
+'use client';
+import axiosInstance from "../axios/axiosInstance";
+
+const onLogout = () => {
+    const response = axiosInstance.get("/api/logout");
+    
+}
 export default function LogOutComponent (props: {setIsLoggingOut: (arg0: boolean) => void}) {
     return <>
         <div className="w-full h-dvh flex items-center justify-center flex-col fixed top-0 z-5">
