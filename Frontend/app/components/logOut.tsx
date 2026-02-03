@@ -2,19 +2,25 @@
 import axiosInstance from "../axios/axiosInstance";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+
 export default function LogOutComponent (props: {setIsLoggingOut: (arg0: boolean) => void}) {
     const { setWhereIsPrincipal } = useGlobalStore();
     const router = useRouter();
     const [logOutError, setLogOutError] = useState<boolean>(false);
-    const onLogout = async () => {
-        const response = await axiosInstance.get("/api/logout");
-        if (response.data.message === "logoutSuccessful") {
-            setWhereIsPrincipal("login");
-            router.push("/login");
-        } else if (response.data.message === "error") {
-            setLogOutError(true);
-        }
+    const [loggingOut, startLoggingOut] = useTransition();
+    const onLogout = () => {
+        startLoggingOut(async () => {
+            const response = await axiosInstance.get("/api/logout");
+            console.log(response);
+            if (response.data.message === "logoutSuccessful") {
+                setWhereIsPrincipal("login");
+                props.setIsLoggingOut(false);
+                router.push("/login");
+            } else if (response.data.message === "error") {
+                setLogOutError(true);
+            }
+        })
     };
 
     return <>
@@ -32,9 +38,9 @@ export default function LogOutComponent (props: {setIsLoggingOut: (arg0: boolean
                     <button 
                     className="bg-slate-200 hover:bg-slate-300"
                     onClick={() => props.setIsLoggingOut(false)}>Cancel</button>
-                    <button className="bg-red-200 text-red-500 hover:bg-red-300/80"
-                    onClick={onLogout}
-                    >Log out</button>
+                    <button className={`bg-red-200 text-red-500 hover:bg-red-300/80 ${loggingOut && "opacity-50"}`}
+                    onClick={() => !loggingOut && onLogout()}
+                    >{!loggingOut ? "Log out" : "Logging out..."}</button>
                 </div>
             </div>
         </div>

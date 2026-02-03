@@ -251,15 +251,12 @@ app.get("/api/logout", async (c) => {
           isRevoked: true
         }
       });
-      deleteCookie(c, COOKIE_NAME);
-      (c as any).session = null;
-      (c as any).user = null;
       return c.json({message: "logoutSuccessful"});
     } catch (error) {
       return c.json({error, message: "error"});
     }
   };
-  return c.json({error: "error while logging out, session seems to not exist"});
+  return c.json({error: "error while logging out, session seems to not exist", message: "error"});
 })
 
 // create_room
