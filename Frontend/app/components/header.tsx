@@ -11,7 +11,13 @@ export default function HeaderComponent () {
     const [isLoggingOut, setIsLoggingOut] = useState<boolean> (false);
     return <>
         { isLoggingOut && <LogOutComponent setIsLoggingOut={setIsLoggingOut}/> }
-        <header className="fixed top-3 w-[95dvw] bg-white flex justify-between p-3 rounded-sm shadow-sm">
+        <header className={`
+            ${((whereIsPrincipal ==="createRoom" || whereIsPrincipal === "joinRoom") 
+            ? "fixed top-3"
+            : "")} 
+            border border-slate-100 w-[95dvw] 
+            bg-white flex justify-between p-3 rounded-sm shadow-sm
+        `}>
             <div className="flex gap-2 items-center">
                 <div className="w-10 h-10 bg-black rounded-full">
                 </div>

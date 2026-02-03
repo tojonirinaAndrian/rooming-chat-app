@@ -145,7 +145,7 @@ export default function SignUp () {
                         <input 
                             type={!visiblePassword ? "password" : "text"} 
                             name="password" 
-                            placeholder="your passwoed"
+                            placeholder="your password"
                             onChange={(e) => onPasswordChange(e)}
                             className="border rounded-sm p-3 w-full border-slate-200"
                         />

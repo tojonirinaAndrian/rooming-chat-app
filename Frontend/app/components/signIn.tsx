@@ -123,7 +123,7 @@ export default function SignIn () {
                     <label htmlFor="password" className="text-black/80">Password : </label>
                     <div className="flex gap-2 items-center">
                         <input 
-                            placeholder="password"
+                            placeholder="your password"
                             type={!visiblePassword ? "password" : "text"} 
                             name="your password" 
                             onChange={(e) => onPasswordChange(e)}
