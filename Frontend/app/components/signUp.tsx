@@ -22,7 +22,7 @@ const passwordSchema = z
 .refine((val) => /[^A-Za-z0-9]/.test(val), "Password must contain a special character");
 
 export default function SignUp () {
-    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn} = useGlobalStore();
+    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn, hasHydrated} = useGlobalStore();
     const router = useRouter();
 
     const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
@@ -35,6 +35,10 @@ export default function SignUp () {
     const [usernameError, setUsernameError] = useState<string>("");
     const [isContinuing, startContinuing] = useTransition();
     const [signupError, setSignupError] = useState<string>("");
+    
+    useEffect(() => {
+        setWhereIsPrincipal("signup");
+    }, [hasHydrated]);
     
     const onContinuingClick = () => {
         startContinuing (async () => {

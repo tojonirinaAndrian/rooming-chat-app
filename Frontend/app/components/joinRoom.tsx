@@ -16,14 +16,14 @@ export default function JoinRoom () {
     const [roomName, setRoomName] = useState<string> ("");
     const [roomId, setRoomId] = useState<string> ("");
     const [roomNameError, setRoomNameError] = useState<string>("");
-    setWhereIsPrincipal("joinRoom");
-
     useEffect(() => {
         if (hasHydrated) {
             if (loggedIn === false) {
                 setWhereIsPrincipal("login");
                 router.push("/login");
+                return
             }
+            setWhereIsPrincipal("joinRoom");
         }
     }, [hasHydrated]);
 

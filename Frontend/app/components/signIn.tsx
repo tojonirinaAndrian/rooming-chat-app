@@ -33,7 +33,10 @@ export default function SignIn () {
     const [isThereErrors, setIsThereErrors] = useState<boolean>(false);
     const [isContinuing, startContinuing] = useTransition();
     const [signingError, setSigningError] = useState<string>("");
-    setWhereIsPrincipal("login");
+
+    useEffect(() => {
+        setWhereIsPrincipal("login");
+    }, [hasHydrated]);
 
     const onContinuingClick = () => {
         startContinuing (async () => {
