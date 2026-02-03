@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type whereIsPrincipalType = "login" | "signup" | "createRoom" | "joinRoom"
+type whereIsPrincipalType = "login" | "signup" | "createRoom" | "joinRoom" | "myRooms"
 interface useStoreProps {
     whereIsPrincipal: whereIsPrincipalType,
     setWhereIsPrincipal: (arg0: whereIsPrincipalType) => void,

@@ -26,7 +26,7 @@ export default function LogOutComponent (props: {setIsLoggingOut: (arg0: boolean
     return <>
         <div className="w-full h-dvh flex items-center justify-center flex-col fixed top-0 z-5">
             <div className="w-dvw h-dvh bg-black/70 fixed top-0 z-6" onClick={() => props.setIsLoggingOut(false)}></div>
-            <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border z-7 border-slate-200 shadow-sm bg-white">
+            <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border z-7 border-slate-300 shadow-sm bg-white">
                 <div className="text-center space-y-3">
                     <p className="text-xl font-bold">{"@"}log_out</p>
                     <p className=" text-slate-600">Are you sure to log out now ?</p>

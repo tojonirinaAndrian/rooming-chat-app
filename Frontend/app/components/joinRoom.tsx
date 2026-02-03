@@ -57,7 +57,7 @@ export default function JoinRoom () {
     return <>
         <div className="w-full h-dvh flex items-center justify-center flex-col">
             <HeaderComponent />
-            <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
+            <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-300 shadow-sm">
                 <div className="text-center space-y-3">
                     <p className="text-xl font-bold">{"@"}room_joining</p>
                     <p className=" text-slate-600">Please enter the room infos</p>
@@ -69,7 +69,7 @@ export default function JoinRoom () {
                             name="room_name"
                             onChange={(e) => onRoomNameChange(e)} 
                             type="text" 
-                            className="p-3 rounded-sm border border-slate-200 w-full " placeholder="enter room name..."
+                            className="p-3 rounded-sm border border-slate-300 w-full " placeholder="enter room name..."
                         />
                         {roomNameError.length > 0 && <p className="text-red">
                             {roomNameError}
@@ -81,7 +81,7 @@ export default function JoinRoom () {
                             name="room_id"
                             onChange={(e) => onRoomIdChange(e)} 
                             type="text" 
-                            className="p-3 rounded-sm border border-slate-200 w-full " placeholder="enter room id..."
+                            className="p-3 rounded-sm border border-slate-300 w-full " placeholder="enter room id..."
                         />
                     </div>
                     <button 

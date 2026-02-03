@@ -109,7 +109,7 @@ export default function SignUp () {
     }, [email, password, username]);
 
     return <div className="w-full h-dvh flex items-center justify-center flex-col">
-        <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
+        <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-300 shadow-sm">
             <div className="text-center space-y-3">
                 <p className="text-xl font-bold">{"@"}account_creation</p>
                 <p className=" text-slate-600">Please enter your credentials</p>
@@ -121,7 +121,7 @@ export default function SignUp () {
                         placeholder="your username"
                         type="text" name="username"
                         onChange={(e) => onUsernameChange(e)}
-                        className="border rounded-sm p-3 w-full border-slate-200"
+                        className="border rounded-sm p-3 w-full border-slate-300"
                     />
                     {usernameError.length > 0 && <p className="m-2 text-sm text-red-500">
                         * {usernameError}  
@@ -133,7 +133,7 @@ export default function SignUp () {
                         type="email" name="email" 
                         placeholder="your email address"
                         onChange={(e) => onEmailChange(e)}
-                        className="border rounded-sm p-3 w-full border-slate-200"
+                        className="border rounded-sm p-3 w-full border-slate-300"
                     />
                     {emailErrors && <p className="m-2 text-sm text-red-500">
                         * Invalid email 
@@ -147,7 +147,7 @@ export default function SignUp () {
                             name="password" 
                             placeholder="your password"
                             onChange={(e) => onPasswordChange(e)}
-                            className="border rounded-sm p-3 w-full border-slate-200"
+                            className="border rounded-sm p-3 w-full border-slate-300"
                         />
                         <span 
                             className="text-sm cursor-pointer text-black/80"

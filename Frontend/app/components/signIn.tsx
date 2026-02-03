@@ -101,7 +101,7 @@ export default function SignIn () {
     }, [email, password]);
     
     return <div className="w-full h-dvh flex items-center justify-center flex-col">
-        <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
+        <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-300 shadow-sm">
             <div className="text-center space-y-3">
                 <p className="text-xl font-bold">{"@"}connection</p>
                 <p className=" text-slate-600">Please enter your credentials</p>
@@ -113,7 +113,7 @@ export default function SignIn () {
                         type="email" name="email" 
                         onChange={(e) => onEmailChange(e)}
                         placeholder="your email address"
-                        className="border rounded-sm p-3 w-full border-slate-200"
+                        className="border rounded-sm p-3 w-full border-slate-300"
                     />
                     {emailErrors && <p className="m-2 text-sm text-red-500">
                         * Invalid or wrong email 
@@ -127,7 +127,7 @@ export default function SignIn () {
                             type={!visiblePassword ? "password" : "text"} 
                             name="your password" 
                             onChange={(e) => onPasswordChange(e)}
-                            className="border rounded-sm p-3 w-full border-slate-200"
+                            className="border rounded-sm p-3 w-full border-slate-300"
                         />
                         <span 
                             className="text-sm cursor-pointer text-black/80"

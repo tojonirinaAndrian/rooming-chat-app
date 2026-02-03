@@ -58,7 +58,7 @@ export default function CreateRoom () {
     return <>
         <div className="w-full h-dvh flex items-center justify-center flex-col">
             <HeaderComponent />
-            <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
+            <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-300 shadow-sm">
                 <div className="text-center space-y-3">
                     <p className="text-xl font-bold">{"@"}room_creation</p>
                     <p className=" text-slate-600">Please enter the room name</p>
@@ -68,7 +68,7 @@ export default function CreateRoom () {
                         name="room_name"
                         onChange={(e) => onRoomNameChange(e)} 
                         type="text" 
-                        className="p-3 rounded-sm border border-slate-200 w-full " placeholder="enter room name..."
+                        className="p-3 rounded-sm border border-slate-300 w-full " placeholder="enter room name..."
                     />
                     {roomNameError.length > 0 && <p className="text-red-500! m-2">
                         * {roomNameError}
