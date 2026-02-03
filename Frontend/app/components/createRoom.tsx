@@ -1,7 +1,6 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
-import axios from "axios";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";

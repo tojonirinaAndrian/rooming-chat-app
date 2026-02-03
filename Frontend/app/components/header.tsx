@@ -1,12 +1,16 @@
 'use client'
 import { useRouter } from "next/navigation";
 import { useGlobalStore } from "../store/use-globale-store"
+import { useState } from "react";
+import LogOutComponent from "./logOut";
 
 export default function HeaderComponent () {
     const router = useRouter();
     const { currentUser, whereIsPrincipal, setWhereIsPrincipal } = useGlobalStore();
     console.log("whereIsPrincipal: ", whereIsPrincipal);
+    const [isLoggingOut, setIsLoggingOut] = useState<boolean> (false);
     return <>
+        { isLoggingOut && <LogOutComponent setIsLoggingOut={setIsLoggingOut}/> }
         <header className="fixed top-3 w-[95dvw] bg-white flex justify-between p-3 rounded-sm shadow-sm">
             <div className="flex gap-2 items-center">
                 <div className="w-10 h-10 bg-black rounded-full">
@@ -14,7 +18,9 @@ export default function HeaderComponent () {
                 <p>{currentUser.name}</p>
             </div>
             <div className="flex gap-1 *:cursor-pointer ">
-                <button className="bg-black/10 rounded-sm p-3 hover:bg-black/20">Log out</button>
+                <button className="bg-black/10 rounded-sm p-3 hover:bg-black/20"
+                onClick={() => setIsLoggingOut(true)}
+                >Log out</button>
                 {(whereIsPrincipal === "createRoom") &&
                 <button className="bg-black text-white  rounded-sm p-3 hover:bg-black/80"
                 onClick={() => {
