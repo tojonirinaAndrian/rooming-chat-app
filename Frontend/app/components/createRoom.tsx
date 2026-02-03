@@ -71,7 +71,7 @@ export default function CreateRoom () {
                         type="text" 
                         className="p-3 rounded-sm border border-slate-200 w-full " placeholder="enter room name..."
                     />
-                    {roomNameError.length > 0 && <p className="text-red!">
+                    {roomNameError.length > 0 && <p className="text-red-500! m-2">
                         * {roomNameError}
                     </p>} 
                     <button 

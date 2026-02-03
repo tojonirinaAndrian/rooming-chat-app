@@ -13,10 +13,10 @@ export default function HeaderComponent () {
                 </div>
                 <p>{currentUser.name}</p>
             </div>
-            <div className="flex gap-1">
-                <button className="bg-black/10  rounded-sm p-3">Log out</button>
+            <div className="flex gap-1 *:cursor-pointer ">
+                <button className="bg-black/10 rounded-sm p-3 hover:bg-black/20">Log out</button>
                 {(whereIsPrincipal === "createRoom") &&
-                <button className="bg-black text-white  rounded-sm p-3"
+                <button className="bg-black text-white  rounded-sm p-3 hover:bg-black/80"
                 onClick={() => {
                     setWhereIsPrincipal("joinRoom");
                     router.push("/join_room");
@@ -26,7 +26,7 @@ export default function HeaderComponent () {
                 </button>
                 } 
                 {(whereIsPrincipal === "joinRoom") &&
-                <button className="bg-black text-white  rounded-sm p-3"
+                <button className="bg-black text-white  rounded-sm p-3 hover:bg-black/80"
                 onClick={() => {
                     setWhereIsPrincipal("createRoom");
                     router.push("/create_room");
