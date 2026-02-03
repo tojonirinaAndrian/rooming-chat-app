@@ -1,7 +1,6 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
-import axios from "axios";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";
@@ -12,7 +11,7 @@ export default function JoinRoom () {
     const { 
        loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated
     } = useGlobalStore()
-    const [creatingRoom, startCreatingRoom] = useTransition();
+    const [joiningRoom, startJoiningRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
     const [roomId, setRoomId] = useState<string> ("");
     const [roomNameError, setRoomNameError] = useState<string>("");
@@ -28,8 +27,8 @@ export default function JoinRoom () {
     }, [hasHydrated]);
 
     //TODO : Create a function that triggers then the button create room is clicked
-    const onCreateRoomClick = () => {
-        startCreatingRoom(async () => {
+    const onJoinRoomClick = () => {
+        startJoiningRoom(async () => {
             //TODO : Call from backend;
             if (roomName.length < 5) {
                 setRoomNameError("* must be at least 5 characters");
@@ -39,8 +38,7 @@ export default function JoinRoom () {
             console.log("res : " + res.data);
             if (res.data.message === "error") {
                 console.log("An error happened");
-            }
-            else if (res.data.message === "success") {
+            } else if (res.data.message === "success") {
                 console.log("success");
             }
         })
@@ -61,8 +59,8 @@ export default function JoinRoom () {
             <HeaderComponent />
             <div className="p-8 md:w-[40dvw] w-[95dvw] rounded-sm space-y-3 border border-slate-200 shadow-sm">
                 <div className="text-center space-y-3">
-                    <p className="text-xl font-bold">{"@"}room_creation</p>
-                    <p className=" text-slate-600">Please enter the room name</p>
+                    <p className="text-xl font-bold">{"@"}room_joining</p>
+                    <p className=" text-slate-600">Please enter the room infos</p>
                 </div>
                 <div className="space-y-1">
                     <div className="space-y-1">
@@ -87,11 +85,11 @@ export default function JoinRoom () {
                         />
                     </div>
                     <button 
-                        className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(creatingRoom || roomName.length <= 0) && " opacity-50 "}`}
+                        className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(joiningRoom || roomName.length <= 0) && " opacity-50 "}`}
                         onClick={(e) => {
-                            (roomName.length > 0) && onCreateRoomClick();
+                            (roomName.length > 0) && onJoinRoomClick();
                         }}
-                    >{creatingRoom ? "Creating room..." : "Create"}</button>
+                    >{joiningRoom ? "Joining room..." : "Join"}</button>
                 </div>
             </div>            
         </div>

@@ -24,7 +24,6 @@ export default function HeaderComponent () {
                 {(whereIsPrincipal === "createRoom") &&
                 <button className="bg-black text-white  rounded-sm p-3 hover:bg-black/80"
                 onClick={() => {
-                    setWhereIsPrincipal("joinRoom");
                     router.push("/join_room");
                 }}
                 >
@@ -34,7 +33,6 @@ export default function HeaderComponent () {
                 {(whereIsPrincipal === "joinRoom") &&
                 <button className="bg-black text-white  rounded-sm p-3 hover:bg-black/80"
                 onClick={() => {
-                    setWhereIsPrincipal("createRoom");
                     router.push("/create_room");
                 }}
                 >
