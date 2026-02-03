@@ -11,16 +11,19 @@ export default function CreateRoom () {
     const router = useRouter();
     const { 
        loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated 
-    } = useGlobalStore()
+    } = useGlobalStore();
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
     const [roomNameError, setRoomNameError] = useState<string>("");
+    setWhereIsPrincipal("createRoom");
+
     useEffect(() => {
         if (hasHydrated) {
             console.log("loggedIn: ", loggedIn);
             if (loggedIn === false) {
                 setWhereIsPrincipal("login");
                 router.push("/login");
+                return
             }
         }
     }, [hasHydrated]);

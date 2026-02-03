@@ -35,7 +35,7 @@ export default function SignUp () {
     const [usernameError, setUsernameError] = useState<string>("");
     const [isContinuing, startContinuing] = useTransition();
     const [signupError, setSignupError] = useState<string>("");
-
+    
     const onContinuingClick = () => {
         startContinuing (async () => {
             // await from the backend

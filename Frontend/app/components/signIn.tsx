@@ -33,7 +33,8 @@ export default function SignIn () {
     const [isThereErrors, setIsThereErrors] = useState<boolean>(false);
     const [isContinuing, startContinuing] = useTransition();
     const [signingError, setSigningError] = useState<string>("");
-    console.log("loggedIn: ", loggedIn);
+    setWhereIsPrincipal("login");
+
     const onContinuingClick = () => {
         startContinuing (async () => {
             // await from the backend

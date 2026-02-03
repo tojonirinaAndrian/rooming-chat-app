@@ -16,6 +16,7 @@ export default function JoinRoom () {
     const [roomName, setRoomName] = useState<string> ("");
     const [roomId, setRoomId] = useState<string> ("");
     const [roomNameError, setRoomNameError] = useState<string>("");
+    setWhereIsPrincipal("joinRoom");
 
     useEffect(() => {
         if (hasHydrated) {

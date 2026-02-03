@@ -5,6 +5,7 @@ import { useGlobalStore } from "../store/use-globale-store"
 export default function HeaderComponent () {
     const router = useRouter();
     const { currentUser, whereIsPrincipal, setWhereIsPrincipal } = useGlobalStore();
+    console.log("whereIsPrincipal: ", whereIsPrincipal);
     return <>
         <header className="fixed top-3 w-[95dvw] bg-white flex justify-between p-3 rounded-sm shadow-sm">
             <div className="flex gap-2 items-center">
@@ -14,7 +15,7 @@ export default function HeaderComponent () {
             </div>
             <div className="flex gap-1">
                 <button className="bg-black/10  rounded-sm p-3">Log out</button>
-                {whereIsPrincipal === "createRoom" &&
+                {(whereIsPrincipal === "createRoom") &&
                 <button className="bg-black text-white  rounded-sm p-3"
                 onClick={() => {
                     setWhereIsPrincipal("joinRoom");
@@ -24,7 +25,7 @@ export default function HeaderComponent () {
                     Join a room
                 </button>
                 } 
-                {whereIsPrincipal === "joinRoom" &&
+                {(whereIsPrincipal === "joinRoom") &&
                 <button className="bg-black text-white  rounded-sm p-3"
                 onClick={() => {
                     setWhereIsPrincipal("createRoom");
