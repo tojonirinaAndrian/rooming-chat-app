@@ -9,7 +9,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import dotenv from "dotenv";
 import bcrypt from 'bcryptjs';
 import { setCookie } from 'hono/cookie';
-import { getCookie } from 'hono/cookie';
+import { getCookie, deleteCookie } from 'hono/cookie';
 
 dotenv.config();
 
@@ -251,6 +251,7 @@ app.get("/api/logout", async (c) => {
           isRevoked: true
         }
       });
+      deleteCookie(c, COOKIE_NAME);
       return c.json({message: "logoutSuccessful"});
     } catch (error) {
       return c.json({error});
