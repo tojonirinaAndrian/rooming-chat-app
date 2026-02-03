@@ -10,7 +10,7 @@ import axiosInstance from "../axios/axiosInstance";
 export default function CreateRoom () {
     const router = useRouter();
     const { 
-       loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated 
+       loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated, setRoomState
     } = useGlobalStore();
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
@@ -35,7 +35,15 @@ export default function CreateRoom () {
             const res = await axiosInstance.post("/api/createRoom", {
                 room_name: roomName
             });
-            console.log("res : " + res.data);
+            if (res.data.message === "success") {
+                const createdRoom = res.data.createdRoom as {
+                    name: string, id: number
+                };
+                console.log(createdRoom);
+                setRoomState(createdRoom);
+            } else {
+                console.log(res.data);
+            }
         })
     }
     const onRoomNameChange = (e: ChangeEvent<HTMLInputElement>) => {

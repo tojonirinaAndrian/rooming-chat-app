@@ -123,7 +123,7 @@ export default function SignUp () {
                         onChange={(e) => onUsernameChange(e)}
                         className="border rounded-sm p-3 w-full border-slate-200"
                     />
-                    {usernameError.length > 0 && <p className="mx-2 text-sm text-red-500">
+                    {usernameError.length > 0 && <p className="m-2 text-sm text-red-500">
                         * {usernameError}  
                     </p>}
                 </div>
@@ -135,7 +135,7 @@ export default function SignUp () {
                         onChange={(e) => onEmailChange(e)}
                         className="border rounded-sm p-3 w-full border-slate-200"
                     />
-                    {emailErrors && <p className="mx-2 text-sm text-red-500">
+                    {emailErrors && <p className="m-2 text-sm text-red-500">
                         * Invalid email 
                     </p>}
                 </div>
@@ -156,14 +156,14 @@ export default function SignUp () {
                             {visiblePassword ? "Hide" : "See"}
                         </span>
                     </div>
-                    {passwordErrors.length > 0 && <ul className="mx-2 text-sm text-red-500">
+                    {passwordErrors.length > 0 && <ul className="m-2 text-sm text-red-500">
                         {passwordErrors.map((error, i) => {
                             return <li key={i}>* {error}</li>
                         })}
                     </ul>}
                 </div>
             </div>
-            {signupError.length > 0 && <p className="mx-2 text-sm text-red-500 text-center">
+            {signupError.length > 0 && <p className="m-2 font-bold text-sm text-red-500 text-center">
                 * {signupError}
             </p>}
             <button 

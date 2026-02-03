@@ -16,6 +16,12 @@ interface useStoreProps {
         name: string, email: string, id: number
     }) => void;
     hasHydrated: boolean;
+    roomState: {
+        name: string, id: number
+    };
+    setRoomState: (arg0 : {
+        name: string, id: number
+    }) => void
 }
 
 export const useGlobalStore = create<useStoreProps>() (
@@ -50,6 +56,16 @@ export const useGlobalStore = create<useStoreProps>() (
                     }
                 })
             },
+            roomState: {
+                name:"", id: 0
+            },
+            setRoomState: (state) => {
+                set(() => {
+                    return {
+                        roomState: state
+                    }
+                })
+            }
         }), {
             name: "global",
             onRehydrateStorage: () => (state) => {

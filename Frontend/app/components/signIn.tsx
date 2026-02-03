@@ -115,7 +115,7 @@ export default function SignIn () {
                         placeholder="your email address"
                         className="border rounded-sm p-3 w-full border-slate-200"
                     />
-                    {emailErrors && <p className="mx-2 text-sm text-red-500">
+                    {emailErrors && <p className="m-2 text-sm text-red-500">
                         * Invalid or wrong email 
                     </p>}
                 </div>
@@ -136,14 +136,14 @@ export default function SignIn () {
                             {visiblePassword ? "Hide" : "See"}
                         </span>
                     </div>
-                    {passwordErrors.length > 0 && <ul className="mx-2 text-sm text-red-500">
+                    {passwordErrors.length > 0 && <ul className="m-2 text-sm text-red-500">
                         {passwordErrors.map((error, i) => {
                             return <li key={i}>* {error}</li>
                         })}
                     </ul>}
                 </div>
             </div>
-            {signingError.length > 0 && <p className="mx-2 text-sm text-red-500 text-center">
+            {signingError.length > 0 && <p className="m-2 font-bold text-sm text-red-500 text-center">
                 * {signingError}
             </p>}
             <button 
