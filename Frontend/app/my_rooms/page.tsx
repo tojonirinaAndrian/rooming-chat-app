@@ -14,11 +14,6 @@ type room = {
     people_ids: number[]
 }
 
-// id         Int      @id @default(autoincrement())
-//   people_ids Int[]
-//   created_at DateTime @default(now())
-//   created_by Int
-//   room_name  String   @unique
 export default function Page() {
     const { whereIsPrincipal, setWhereIsPrincipal, hasHydrated, loggedIn, currentUser } = useGlobalStore();
     const router = useRouter();
@@ -37,11 +32,16 @@ export default function Page() {
     const [rooms, setRooms] = useState<room[]>([]);
     useEffect(() => {
         startRoomsCharging(async () => {
-            const response = await axiosInstance.get(`/api/get_rooms/${where}`);
+            // const response = await axiosInstance.get(`/api/get_rooms/${where}`);
             // TODO : get and show backend data 
             // add a room route in the backend too
         })
-    }, [setWhere])
+    }, [setWhere]);
+    
+    const onRoomClick = async () => {
+        // GET THE ROOMS messages (messages)
+    };
+    
     return <>
         <div className="gap-2 flex flex-col w-dvw h-dvh p-3">
             <HeaderComponent />
