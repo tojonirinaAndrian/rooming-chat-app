@@ -35,8 +35,14 @@ export default function Page() {
         startRoomsCharging(async () => {
             // TODO : get and show backend data 
             // add a room route in the backend too
+            console.log(where);
             const response = await axiosInstance.get(`/api/get_rooms/${where}`);
             console.log(response.data);
+            if (response.data.rooms) {
+                setRooms(response.data.rooms);
+            } else {
+                setRooms([]);
+            }
         })
     }, [setWhere]);
     
@@ -48,31 +54,33 @@ export default function Page() {
         <div className="flex gap-2 w-dvw h-dvh p-3">
             <div className="flex flex-col gap-2 w-[45%]">
                 <HeaderComponent />
-                <div className="rounded-md w-full border border-slate-300 bg-white p-3 h-full flex flex-col gap-2">
+                <div className="rounded-md w-full border border-slate-300 bg-white p-3 h-full flex flex-col gap-3">
                     <p className="text-xl font-bold">{"@"}your_rooms</p>
                     <div className="flex gap-1 *:cursor-pointer">
                         <button 
                         onClick={() => !(where === "all") && setWhere("all")}
-                        className={`${where === "all" ? "bg-black text-white" : "bg-slate-200 text-black"} rounded-sm p-3`}>All</button>
+                        className={`${where === "all" ? "border-black" : "border-transparent"} bg-slate-200 text-blackborder rounded-sm p-3`}>All</button>
                         <button 
                         onClick={() => !(where === "created") && setWhere("created")}                        
-                        className={`${where === "created" ? "bg-black text-white" : "bg-slate-200 text-black"} rounded-sm p-3`}>Created rooms</button>
+                        className={`${where === "created" ? "border-black" : "border-transparent"} bg-slate-200 text-black border rounded-sm p-3`}>Created rooms</button>
                         <button 
                         onClick={() => !(where === "joined") && setWhere("joined")}
-                        className={`${where === "joined" ? "bg-black text-white" : "bg-slate-200 text-black"} rounded-sm p-3`}>Joined rooms</button>
+                        className={`${where === "joined" ? "border-black" : "border-transparent"} bg-slate-200 text-black border rounded-sm p-3`}>Joined rooms</button>
                     </div>
                     <div className="w-full h-full overflow-auto flex flex-col gap-2">
                         {roomsCharging ? <>
-                            <p className="text-slate-800">Charging</p>
+                            <p className="text-slate-600">charging...</p>
                         </> : <>
-                            {rooms.map((room) => {
+                            {(rooms.length >= 1) ? rooms.map((room) => {
                                 return <div key={room.id} className="flex gap-2 items-center">
                                     <div className="w-10 h-10 bg-black rounded-full"></div>
                                     <div className="flex flex-col gap-1">
                                         <p className="text-black font-semibold">{room.room_name}</p>
                                     </div>
                                 </div>
-                            })}
+                            }) : <>
+                            <p className="text-slate-600">no room to show...</p>
+                            </>}
                         </>}
                     </div>
                 </div>
