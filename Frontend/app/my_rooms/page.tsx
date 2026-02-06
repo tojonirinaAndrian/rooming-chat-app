@@ -33,9 +33,10 @@ export default function Page() {
     const [rooms, setRooms] = useState<room[]>([]);
     useEffect(() => {
         startRoomsCharging(async () => {
-            // const response = await axiosInstance.get(`/api/get_rooms/${where}`);
             // TODO : get and show backend data 
             // add a room route in the backend too
+            const response = await axiosInstance.get(`/api/get_rooms/${where}`);
+            console.log(response.data);
         })
     }, [setWhere]);
     
