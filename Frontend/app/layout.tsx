@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Real type chat app",
+  title: "Real time chat app",
   description: "Creating my first app that uses websocket",
 };
 
