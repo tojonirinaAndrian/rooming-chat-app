@@ -15,8 +15,9 @@ export default function JoinRoom () {
     const [roomName, setRoomName] = useState<string> ("");
     const [roomId, setRoomId] = useState<string> ("");
     const [roomNameError, setRoomNameError] = useState<string>("");
-    const [globalError, setGlobalError] = useState<string>("");
+    const [globalState, setGlobalState] = useState<string>("");
     const [success, setSuccess] = useState<boolean>(false);
+
     useEffect(() => {
         if (hasHydrated) {
             if (loggedIn === false) {
@@ -40,13 +41,13 @@ export default function JoinRoom () {
             console.log("res : " + res.data);
             if (res.data.message === "room_not_found") {
                 console.log("An error happened");
-                setGlobalError("* room not found");
+                setGlobalState("* room not found");
             } else if (res.data.message = "own_room") {
-                setGlobalError("* this is your own room");
+                setGlobalState("* this is your own room");
             } else if (res.data.message === "success") {
                 console.log("success");
                 setSuccess(true);
-                setGlobalError("room created successfully");
+                setGlobalState("success");
             }
         })
     }
@@ -91,8 +92,8 @@ export default function JoinRoom () {
                             className="p-3 rounded-sm border border-slate-300 w-full " placeholder="enter room id..."
                         />
                     </div>
-                    {globalError.length > 0 && <p className={`text-center font-semibold ${(globalError === "room created successfully") ? "text-green-600" : "text-red-500"}`}>
-                        {globalError}
+                    {globalState.length > 0 && <p className={`text-center font-semibold ${(globalState === "success") ? "text-green-600" : "text-red-500"}`}>
+                        {globalState}
                     </p>}
                     {success && <button 
                         className={`w-full p-3 rounded-sm bg-slate-100 hover:bg-slate-200 text-black font-semibold cursor-pointer`}

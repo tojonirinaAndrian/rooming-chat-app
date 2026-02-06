@@ -14,7 +14,9 @@ export default function CreateRoom () {
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
     const [roomNameError, setRoomNameError] = useState<string>("");
-    
+    const [globalState, setGlobalState] = useState<string>("");
+    const [success, setSuccess] = useState<boolean>(false);
+
     useEffect(() => {
         if (hasHydrated) {
             console.log("loggedIn: ", loggedIn);
@@ -35,13 +37,16 @@ export default function CreateRoom () {
                 room_name: roomName
             });
             if (res.data.message === "success") {
-                const createdRoom = res.data.createdRoom as {
-                    name: string, id: number
-                };
-                console.log(createdRoom);
-                setRoomState(createdRoom);
+                setSuccess(true);
+                setGlobalState("success");
+                console.log("success");
+            } else if (res.data.message === "roomNameAlreadyExists"){
+                setGlobalState("* room already exists");
             } else {
-                console.log(res.data);
+                setGlobalState("* an error occured");
+                if (res.data.error) {
+                    console.log(res.data.error);
+                }
             }
         })
     }
@@ -63,7 +68,7 @@ export default function CreateRoom () {
                     <p className="text-xl font-bold">{"@"}room_creation</p>
                     <p className=" text-slate-600">Please enter the room name</p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-3">
                     <input 
                         name="room_name"
                         onChange={(e) => onRoomNameChange(e)} 
@@ -73,6 +78,15 @@ export default function CreateRoom () {
                     {roomNameError.length > 0 && <p className="text-red-500! m-2">
                         * {roomNameError}
                     </p>} 
+                    {globalState.length > 0 && <p className={`text-center font-semibold ${(globalState === "success") ? "text-green-600" : "text-red-500"}`}>
+                        {globalState}
+                    </p>}
+                    {success && <button 
+                        className={`w-full p-3 rounded-sm bg-slate-100 hover:bg-slate-200 text-black font-semibold cursor-pointer`}
+                        onClick={(e) => {
+                            router.push("/my_rooms")
+                        }}
+                    >Rooms</button>}
                     <button 
                         className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(creatingRoom || roomName.length <= 5) && " opacity-50 "}`}
                         onClick={(e) => {
