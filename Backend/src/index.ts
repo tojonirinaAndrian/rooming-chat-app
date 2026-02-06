@@ -365,10 +365,36 @@ app.get("/api/createRandomUsers", async (c) => {
     return c.json({error : e});
   }
 });
+
 app.get("/api/getCurrentUsers", async (c) => {
   const users = await prismaClient.user.findMany();
   if (users) return c.json(users)
   else return c.text("error")
+});
+
+// user's rooms
+app.get("/api/get_rooms/:where", async (c) => {
+  if (!((c as any).user && (c as any).session)) {
+    return c.json({ message : "userNotLoggedIn"});
+  }
+  const user_id = (c as any).user.id;
+  const where: "all" | "created" | "joined" = c.req.param("where") as "all" | "created" | "joined";
+
+  if (where === "created") {
+    try {
+      const rooms = await prismaClient.room.findMany({
+        where: {
+          created_by: user_id
+        }
+      });
+      
+    } catch(e) {
+      return c.json({
+        error: e,
+        message: "error"
+      })
+    }
+  }
 })
 
 fire(app);
