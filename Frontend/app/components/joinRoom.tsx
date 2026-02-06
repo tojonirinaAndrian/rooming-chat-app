@@ -42,7 +42,7 @@ export default function JoinRoom () {
             if (res.data.message === "room_not_found") {
                 console.log("An error happened");
                 setGlobalState("* room not found");
-            } else if (res.data.message = "own_room") {
+            } else if (res.data.message === "own_room") {
                 setGlobalState("* this is your own room");
             } else if (res.data.message === "success") {
                 console.log("success");

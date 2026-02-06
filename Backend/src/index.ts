@@ -323,9 +323,11 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
     if (currentRoom) {
       //checks if the current is the creator
       if (currentRoom.created_by === user_id) {
+        console.log(currentRoom.created_by);
+        console.log(user_id);
         return c.json({
           message: "own_room"
-        })
+        });
       }
       const new_guests_ids: number[] = currentRoom.gueists_ids;
       new_guests_ids.push(Number(user_id));
