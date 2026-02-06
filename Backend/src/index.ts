@@ -306,7 +306,7 @@ app.post("/api/createRoom", async (c) => {
 // join room
 app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
   const room_name: string = c.req.param("room_name");
-  const room_id: string = c.req.param("room_id");
+  const room_id: number = Number(c.req.param("room_id"));
   
   if (!((c as any).user && (c as any).session)) {
     return c.json({ message : "userNotLoggedIn"});
@@ -322,6 +322,12 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
     });
 
     if (currentRoom) {
+      //checks if the current is the creator
+      if (currentRoom.created_by === user_id) {
+        return c.json({
+          message: "own_room"
+        })
+      }
       const new_guests_ids: number[] = currentRoom.gueists_ids;
       new_guests_ids.push(Number(user_id));
       const updatedRoom = await prismaClient.room.update({
@@ -345,7 +351,7 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
         message: "success"
       });
     } else {
-      return c.text("room_not_found");
+      return c.json({message : "room_not_found"});
     }
 
   } catch(e) {
