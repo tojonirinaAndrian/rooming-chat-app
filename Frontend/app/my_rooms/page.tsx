@@ -31,6 +31,7 @@ export default function Page() {
     const [where, setWhere] = useState<"all" | "created" | "joined">("all");
     const [roomsCharging, startRoomsCharging] = useTransition();
     const [rooms, setRooms] = useState<room[]>([]);
+    const [currentRoom, setCurrentRoom] = useState<room>();
     useEffect(() => {
         startRoomsCharging(async () => {
             // TODO : get and show backend data 
@@ -67,12 +68,16 @@ export default function Page() {
                         onClick={() => !(where === "joined") && setWhere("joined")}
                         className={`${where === "joined" ? "border-black" : "border-transparent"} bg-slate-200 text-black border rounded-sm p-3`}>Joined rooms</button>
                     </div>
-                    <div className="w-full h-full overflow-auto flex flex-col gap-4">
+                    <div className="w-full h-full overflow-auto flex flex-col gap-1">
                         {roomsCharging ? <>
                             <p className="text-slate-600">charging...</p>
                         </> : <>
                             {(rooms.length >= 1) ? rooms.map((room) => {
-                                return <div key={room.id} className="flex gap-2 items-center">
+                                return <div key={room.id} className={`flex gap-2 items-center cursor-pointer hover:bg-slate-50 p-3 rounded-md ${(currentRoom?.id === room.id) && "bg-slate-50"}`}
+                                onClick={() => {
+                                    setCurrentRoom(room);
+                                }}
+                                >
                                     <div className="w-10 h-10 bg-black rounded-full"></div>
                                     <div className="flex flex-col gap-1">
                                         <p className="text-black font-semibold">{room.room_name}</p>
@@ -91,7 +96,7 @@ export default function Page() {
                         <div className="flex gap-2 items-center">
                             <div className="w-10 h-10 bg-black rounded-full">
                             </div>
-                            <p>Room name</p>
+                            <p>{currentRoom?.room_name} ~ id: {currentRoom?.id}</p>
                         </div>
                         <button className="p-3 rounded-md bg-slate-100 cursor-pointer">Menu</button>
                     </div>

@@ -24,11 +24,11 @@ export default function HeaderComponent () {
                 <p>{currentUser.name}</p>
             </div>
             <div className="flex gap-1 *:cursor-pointer ">
-                <button className="bg-black/10 rounded-sm p-3 hover:bg-black/20"
+                <button className="bg-red-100 rounded-sm p-3 hover:bg-red-200 text-red-600"
                 onClick={() => setIsLoggingOut(true)}
                 >Log out</button>
-                {(whereIsPrincipal === "createRoom") &&
-                <button className="bg-black text-white  rounded-sm p-3 hover:bg-black/80"
+                {(whereIsPrincipal !== "joinRoom") &&
+                <button className="bg-slate-200 text-black  rounded-sm p-3 hover:bg-slate-300"
                 onClick={() => {
                     router.push("/join_room");
                 }}
@@ -36,13 +36,22 @@ export default function HeaderComponent () {
                     Join a room
                 </button>
                 } 
-                {(whereIsPrincipal === "joinRoom") &&
-                <button className="bg-black text-white  rounded-sm p-3 hover:bg-black/80"
+                {(whereIsPrincipal !== "createRoom") &&
+                <button className="bg-slate-200 text-black  rounded-sm p-3 hover:bg-slate-300"
                 onClick={() => {
                     router.push("/create_room");
                 }}
                 >
                     Create a room
+                </button>
+                }
+                {(whereIsPrincipal !== "myRooms") && 
+                <button className="bg-slate-200 text-black  rounded-sm p-3 hover:bg-slate-300"
+                onClick={() => {
+                    router.push("/my_rooms");
+                }}
+                >
+                    My rooms
                 </button>
                 }
             </div>
