@@ -44,22 +44,22 @@ export default function Page() {
                 setRooms([]);
             }
         })
-    }, [setWhere]);
+    }, [where]);
     
     const onRoomClick = async () => {
         // GET THE ROOMS messages (messages)
     };
     
     return <>
-        <div className="flex gap-2 w-dvw h-dvh p-3">
-            <div className="flex flex-col gap-2 w-[45%]">
+        <div className="p-3 flex gap-2 h-dvh">
+            <div className="h-full w-full flex flex-col gap-2">
                 <HeaderComponent />
-                <div className="rounded-md w-full border border-slate-300 bg-white p-3 h-full flex flex-col gap-3">
+                <div className=" bg-white rounded-md h-full w-full border border-slate-300 p-3 flex flex-col gap-5 overflow-auto">
                     <p className="text-xl font-bold">{"@"}your_rooms</p>
                     <div className="flex gap-1 *:cursor-pointer">
                         <button 
                         onClick={() => !(where === "all") && setWhere("all")}
-                        className={`${where === "all" ? "border-black" : "border-transparent"} bg-slate-200 text-blackborder rounded-sm p-3`}>All</button>
+                        className={`${where === "all" ? "border-black" : "border-transparent"} bg-slate-200 text-blackborder border rounded-sm p-3`}>All</button>
                         <button 
                         onClick={() => !(where === "created") && setWhere("created")}                        
                         className={`${where === "created" ? "border-black" : "border-transparent"} bg-slate-200 text-black border rounded-sm p-3`}>Created rooms</button>
@@ -67,7 +67,7 @@ export default function Page() {
                         onClick={() => !(where === "joined") && setWhere("joined")}
                         className={`${where === "joined" ? "border-black" : "border-transparent"} bg-slate-200 text-black border rounded-sm p-3`}>Joined rooms</button>
                     </div>
-                    <div className="w-full h-full overflow-auto flex flex-col gap-2">
+                    <div className="w-full h-full overflow-auto flex flex-col gap-4">
                         {roomsCharging ? <>
                             <p className="text-slate-600">charging...</p>
                         </> : <>
@@ -85,7 +85,7 @@ export default function Page() {
                     </div>
                 </div>
             </div>
-            <div className="md:w-full rounded-md bg-slate-50 border border-slate-300 p-3 h-full flex flex-col gap-2">  
+            <div className="w-full rounded-md bg-slate-50 border border-slate-300 p-3 h-full flex flex-col gap-2">  
                 <div className="h-full w-full flex flex-col gap-2">
                     <div className="w-full flex justify-between rounded-md p-3 border-slate-200 border bg-white">
                         <div className="flex gap-2 items-center">
@@ -95,13 +95,13 @@ export default function Page() {
                         </div>
                         <button className="p-3 rounded-md bg-slate-100 cursor-pointer">Menu</button>
                     </div>
-                    <div className="w-full h-full p-3 ">
+                    <div className="w-full h-full p-3 overflow-auto">
                         {/* messages */}
                     </div>
-                </div>
-                <div className="p-3 border-slate-200 border shadow-md w-full rounded flex gap-2 bg-white">
-                    <input type="text" className="w-full p-3 outline-none" placeholder="Type a message..."/>
-                    <button className="p-3 bg-black text-white rounded-md cursor-pointer">Send</button>
+                    <div className="p-3 border-slate-200 border shadow-md w-full rounded-md flex gap-2 bg-white">
+                        <input type="text" className="w-full p-3 outline-none" placeholder="Type a message..."/>
+                        <button className="p-3 bg-black text-white rounded-md cursor-pointer">Send</button>
+                    </div>
                 </div>
             </div>
         </div>
