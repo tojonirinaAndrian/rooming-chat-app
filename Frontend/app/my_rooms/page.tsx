@@ -6,7 +6,6 @@ import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../axios/axiosInstance";
 
-
 type room = {
     room_name: string,
     id: number,
@@ -47,17 +46,22 @@ export default function Page() {
         })
     }, [where]);
     
-    const onRoomClick = async () => {
+    const onRoomClick = async (room: room) => {
         // GET THE ROOMS messages (messages)
+        setCurrentRoom(room);
     };
     
+    const onSendClick = async () => {
+        // SENDING THE MESSAGE ::: THE WHOLE CORE
+    }
+
     return <>
         <div className="p-3 flex gap-2 h-dvh">
             <div className="h-full w-full flex flex-col gap-2">
                 <HeaderComponent />
                 <div className=" bg-white rounded-md h-full w-full border border-slate-300 p-3 flex flex-col gap-5 overflow-auto">
                     <p className="text-xl font-bold">{"@"}your_rooms</p>
-                    <div className="flex gap-1 *:cursor-pointer">
+                    <div className="flex gap-1 *:cursor-pointer *:hover:border-black">
                         <button 
                         onClick={() => !(where === "all") && setWhere("all")}
                         className={`${where === "all" ? "border-black" : "border-transparent"} bg-slate-200 text-blackborder border rounded-sm p-3`}>All</button>
@@ -73,9 +77,9 @@ export default function Page() {
                             <p className="text-slate-600">charging...</p>
                         </> : <>
                             {(rooms.length >= 1) ? rooms.map((room) => {
-                                return <div key={room.id} className={`flex gap-2 items-center cursor-pointer hover:bg-slate-50 p-3 rounded-md ${(currentRoom?.id === room.id) && "bg-slate-50"}`}
+                                return <div key={room.id} className={`flex gap-2 items-center bg-slate-50 cursor-pointer hover:bg-slate-100 p-3 rounded-md ${(currentRoom?.id === room.id) && "bg-slate-100"}`}
                                 onClick={() => {
-                                    setCurrentRoom(room);
+                                    onRoomClick(room)
                                 }}
                                 >
                                     <div className="w-10 h-10 bg-black rounded-full"></div>
@@ -96,16 +100,18 @@ export default function Page() {
                         <div className="flex gap-2 items-center">
                             <div className="w-10 h-10 bg-black rounded-full">
                             </div>
-                            <p>{currentRoom?.room_name} ~ id: {currentRoom?.id}</p>
+                            {currentRoom && 
+                            <p>{currentRoom.room_name} ~ id: {currentRoom.id}</p>
+                            }
                         </div>
-                        <button className="p-3 rounded-md bg-slate-100 cursor-pointer">Menu</button>
+                        <button className="p-3 rounded-md bg-slate-100 cursor-pointer hover:bg-slate-200">Menu</button>
                     </div>
                     <div className="w-full h-full p-3 overflow-auto">
                         {/* messages */}
                     </div>
                     <div className="p-3 border-slate-200 border shadow-md w-full rounded-md flex gap-2 bg-white">
                         <input type="text" className="w-full p-3 outline-none" placeholder="Type a message..."/>
-                        <button className="p-3 bg-black text-white rounded-md cursor-pointer">Send</button>
+                        <button className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80">Send</button>
                     </div>
                 </div>
             </div>
