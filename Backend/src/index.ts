@@ -285,7 +285,6 @@ app.post("/api/createRoom", async (c) => {
       data: {
         room_name,
         created_by,
-        guests_ids: []
       }
     });
     return c.json ({

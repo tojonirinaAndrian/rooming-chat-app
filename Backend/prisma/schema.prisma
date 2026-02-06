@@ -33,7 +33,7 @@ model User {
 
 model Room {
   id          Int      @id @default(autoincrement())
-  gueists_ids Int[]
+  gueists_ids Int[]    @default([])
   created_at  DateTime @default(now())
   created_by  Int
   room_name   String   @unique
