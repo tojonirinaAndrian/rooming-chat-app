@@ -69,7 +69,7 @@ export default function JoinRoom () {
                     <p className="text-xl font-bold">{"@"}room_joining</p>
                     <p className=" text-slate-600">Please enter the room infos</p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-3">
                     <div className="space-y-1">
                         <label htmlFor="room_name">Room name :</label>
                         <input 
