@@ -43,11 +43,10 @@ export default function Page() {
     };
     
     return <>
-        <div className="gap-2 flex flex-col w-dvw h-dvh p-3">
-            <HeaderComponent />
-            <div className="w-full flex gap-2 h-full *:rounded-sm">
-                <div className="md:w-[40%] border border-slate-300 bg-white p-3 h-full space-y-2"
-                >
+        <div className="flex gap-2 w-dvw h-dvh p-3">
+            <div className="flex flex-col gap-2 w-[45%]">
+                <HeaderComponent />
+                <div className="rounded-md w-full border border-slate-300 bg-white p-3 h-full space-y-2">
                     <p className="text-xl font-bold">{"@"}your_rooms</p>
                     <div className="flex gap-1 *:cursor-pointer">
                         <button 
@@ -61,12 +60,26 @@ export default function Page() {
                         className={`${where === "joined" ? "bg-black text-white" : "bg-slate-200 text-black"} rounded-sm p-3`}>Joined rooms</button>
                     </div>
                 </div>
-                <div className="md:w-[60%] border border-slate-300 bg-white p-3 h-full"
-                >
-
+            </div>
+            <div className="md:w-full rounded-md bg-slate-50 border border-slate-300 p-3 h-full flex flex-col gap-2">  
+                <div className="h-full w-full flex flex-col gap-2">
+                    <div className="w-full flex justify-between rounded-md p-3 border-slate-200 border bg-white shadow-md">
+                        <div className="flex gap-2 items-center">
+                            <div className="w-10 h-10 bg-black rounded-full">
+                            </div>
+                            <p>Room name</p>
+                        </div>
+                        <button className="p-3 rounded-md bg-slate-100">Menu</button>
+                    </div>
+                    <div className="w-full h-full p-3 ">
+                        {/* //message */}
+                    </div>
+                </div>
+                <div className="p-3 border-slate-200 border shadow-md w-full rounded flex gap-2 bg-white">
+                    <input type="text" className="cursor-pointer w-full p-3 outline-none" placeholder="Type a message..."/>
+                    <button className="p-3 bg-black text-white rounded-md">Send</button>
                 </div>
             </div>
-
         </div>
     </>
 }
