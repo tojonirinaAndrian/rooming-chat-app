@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import bcrypt from 'bcryptjs';
 import { setCookie } from 'hono/cookie';
 import { getCookie, deleteCookie } from 'hono/cookie';
+import { IntNullableListFilter } from './generated/models';
 
 dotenv.config();
 
@@ -330,10 +331,12 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
           gueists_ids: [...new_guests_ids]
         }
       });
-      const updatedJoinedRoomsTable = (c as any).user.joined_rooms;
+      const updatedJoinedRoomsTable: number[] = (c as any).user.joined_rooms;
       updatedJoinedRoomsTable.push(updatedRoom.id);
       const updatedNewJoinedUser = await prismaClient.user.update({
         where: {
+          id: user_id
+        }, data: {
           joined_rooms: [...updatedJoinedRoomsTable]
         }
       });
