@@ -759,7 +759,8 @@ export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   name: 'name',
-  password: 'password'
+  password: 'password',
+  joined_rooms: 'joined_rooms'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -767,7 +768,7 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const RoomScalarFieldEnum = {
   id: 'id',
-  people_ids: 'people_ids',
+  gueists_ids: 'gueists_ids',
   created_at: 'created_at',
   created_by: 'created_by',
   room_name: 'room_name'

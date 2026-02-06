@@ -24,18 +24,19 @@ model Session {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  name     String
-  password String
+  id           Int    @id @default(autoincrement())
+  email        String @unique
+  name         String
+  password     String
+  joined_rooms Int[]  @default([])
 }
 
 model Room {
-  id         Int      @id @default(autoincrement())
-  people_ids Int[]
-  created_at DateTime @default(now())
-  created_by Int
-  room_name  String   @unique
+  id          Int      @id @default(autoincrement())
+  gueists_ids Int[]
+  created_at  DateTime @default(now())
+  created_by  Int
+  room_name   String   @unique
 }
 
 model Message {

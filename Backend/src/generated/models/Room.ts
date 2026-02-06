@@ -28,13 +28,13 @@ export type AggregateRoom = {
 
 export type RoomAvgAggregateOutputType = {
   id: number | null
-  people_ids: number | null
+  gueists_ids: number | null
   created_by: number | null
 }
 
 export type RoomSumAggregateOutputType = {
   id: number | null
-  people_ids: number[]
+  gueists_ids: number[]
   created_by: number | null
 }
 
@@ -54,7 +54,7 @@ export type RoomMaxAggregateOutputType = {
 
 export type RoomCountAggregateOutputType = {
   id: number
-  people_ids: number
+  gueists_ids: number
   created_at: number
   created_by: number
   room_name: number
@@ -64,13 +64,13 @@ export type RoomCountAggregateOutputType = {
 
 export type RoomAvgAggregateInputType = {
   id?: true
-  people_ids?: true
+  gueists_ids?: true
   created_by?: true
 }
 
 export type RoomSumAggregateInputType = {
   id?: true
-  people_ids?: true
+  gueists_ids?: true
   created_by?: true
 }
 
@@ -90,7 +90,7 @@ export type RoomMaxAggregateInputType = {
 
 export type RoomCountAggregateInputType = {
   id?: true
-  people_ids?: true
+  gueists_ids?: true
   created_at?: true
   created_by?: true
   room_name?: true
@@ -185,7 +185,7 @@ export type RoomGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type RoomGroupByOutputType = {
   id: number
-  people_ids: number[]
+  gueists_ids: number[]
   created_at: Date
   created_by: number
   room_name: string
@@ -216,7 +216,7 @@ export type RoomWhereInput = {
   OR?: Prisma.RoomWhereInput[]
   NOT?: Prisma.RoomWhereInput | Prisma.RoomWhereInput[]
   id?: Prisma.IntFilter<"Room"> | number
-  people_ids?: Prisma.IntNullableListFilter<"Room">
+  gueists_ids?: Prisma.IntNullableListFilter<"Room">
   created_at?: Prisma.DateTimeFilter<"Room"> | Date | string
   created_by?: Prisma.IntFilter<"Room"> | number
   room_name?: Prisma.StringFilter<"Room"> | string
@@ -224,7 +224,7 @@ export type RoomWhereInput = {
 
 export type RoomOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  people_ids?: Prisma.SortOrder
+  gueists_ids?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   created_by?: Prisma.SortOrder
   room_name?: Prisma.SortOrder
@@ -236,14 +236,14 @@ export type RoomWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.RoomWhereInput | Prisma.RoomWhereInput[]
   OR?: Prisma.RoomWhereInput[]
   NOT?: Prisma.RoomWhereInput | Prisma.RoomWhereInput[]
-  people_ids?: Prisma.IntNullableListFilter<"Room">
+  gueists_ids?: Prisma.IntNullableListFilter<"Room">
   created_at?: Prisma.DateTimeFilter<"Room"> | Date | string
   created_by?: Prisma.IntFilter<"Room"> | number
 }, "id" | "room_name">
 
 export type RoomOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  people_ids?: Prisma.SortOrder
+  gueists_ids?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   created_by?: Prisma.SortOrder
   room_name?: Prisma.SortOrder
@@ -259,14 +259,14 @@ export type RoomScalarWhereWithAggregatesInput = {
   OR?: Prisma.RoomScalarWhereWithAggregatesInput[]
   NOT?: Prisma.RoomScalarWhereWithAggregatesInput | Prisma.RoomScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Room"> | number
-  people_ids?: Prisma.IntNullableListFilter<"Room">
+  gueists_ids?: Prisma.IntNullableListFilter<"Room">
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Room"> | Date | string
   created_by?: Prisma.IntWithAggregatesFilter<"Room"> | number
   room_name?: Prisma.StringWithAggregatesFilter<"Room"> | string
 }
 
 export type RoomCreateInput = {
-  people_ids?: Prisma.RoomCreatepeople_idsInput | number[]
+  gueists_ids?: Prisma.RoomCreategueists_idsInput | number[]
   created_at?: Date | string
   created_by: number
   room_name: string
@@ -274,14 +274,14 @@ export type RoomCreateInput = {
 
 export type RoomUncheckedCreateInput = {
   id?: number
-  people_ids?: Prisma.RoomCreatepeople_idsInput | number[]
+  gueists_ids?: Prisma.RoomCreategueists_idsInput | number[]
   created_at?: Date | string
   created_by: number
   room_name: string
 }
 
 export type RoomUpdateInput = {
-  people_ids?: Prisma.RoomUpdatepeople_idsInput | number[]
+  gueists_ids?: Prisma.RoomUpdategueists_idsInput | number[]
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   created_by?: Prisma.IntFieldUpdateOperationsInput | number
   room_name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -289,7 +289,7 @@ export type RoomUpdateInput = {
 
 export type RoomUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  people_ids?: Prisma.RoomUpdatepeople_idsInput | number[]
+  gueists_ids?: Prisma.RoomUpdategueists_idsInput | number[]
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   created_by?: Prisma.IntFieldUpdateOperationsInput | number
   room_name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -297,14 +297,14 @@ export type RoomUncheckedUpdateInput = {
 
 export type RoomCreateManyInput = {
   id?: number
-  people_ids?: Prisma.RoomCreatepeople_idsInput | number[]
+  gueists_ids?: Prisma.RoomCreategueists_idsInput | number[]
   created_at?: Date | string
   created_by: number
   room_name: string
 }
 
 export type RoomUpdateManyMutationInput = {
-  people_ids?: Prisma.RoomUpdatepeople_idsInput | number[]
+  gueists_ids?: Prisma.RoomUpdategueists_idsInput | number[]
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   created_by?: Prisma.IntFieldUpdateOperationsInput | number
   room_name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -312,23 +312,15 @@ export type RoomUpdateManyMutationInput = {
 
 export type RoomUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  people_ids?: Prisma.RoomUpdatepeople_idsInput | number[]
+  gueists_ids?: Prisma.RoomUpdategueists_idsInput | number[]
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   created_by?: Prisma.IntFieldUpdateOperationsInput | number
   room_name?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type IntNullableListFilter<$PrismaModel = never> = {
-  equals?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
-  has?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
-  hasEvery?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
-  hasSome?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
-}
-
 export type RoomCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  people_ids?: Prisma.SortOrder
+  gueists_ids?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   created_by?: Prisma.SortOrder
   room_name?: Prisma.SortOrder
@@ -336,7 +328,7 @@ export type RoomCountOrderByAggregateInput = {
 
 export type RoomAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  people_ids?: Prisma.SortOrder
+  gueists_ids?: Prisma.SortOrder
   created_by?: Prisma.SortOrder
 }
 
@@ -356,15 +348,15 @@ export type RoomMinOrderByAggregateInput = {
 
 export type RoomSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  people_ids?: Prisma.SortOrder
+  gueists_ids?: Prisma.SortOrder
   created_by?: Prisma.SortOrder
 }
 
-export type RoomCreatepeople_idsInput = {
+export type RoomCreategueists_idsInput = {
   set: number[]
 }
 
-export type RoomUpdatepeople_idsInput = {
+export type RoomUpdategueists_idsInput = {
   set?: number[]
   push?: number | number[]
 }
@@ -373,7 +365,7 @@ export type RoomUpdatepeople_idsInput = {
 
 export type RoomSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  people_ids?: boolean
+  gueists_ids?: boolean
   created_at?: boolean
   created_by?: boolean
   room_name?: boolean
@@ -381,7 +373,7 @@ export type RoomSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 
 export type RoomSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  people_ids?: boolean
+  gueists_ids?: boolean
   created_at?: boolean
   created_by?: boolean
   room_name?: boolean
@@ -389,7 +381,7 @@ export type RoomSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 
 export type RoomSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  people_ids?: boolean
+  gueists_ids?: boolean
   created_at?: boolean
   created_by?: boolean
   room_name?: boolean
@@ -397,20 +389,20 @@ export type RoomSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 
 export type RoomSelectScalar = {
   id?: boolean
-  people_ids?: boolean
+  gueists_ids?: boolean
   created_at?: boolean
   created_by?: boolean
   room_name?: boolean
 }
 
-export type RoomOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "people_ids" | "created_at" | "created_by" | "room_name", ExtArgs["result"]["room"]>
+export type RoomOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "gueists_ids" | "created_at" | "created_by" | "room_name", ExtArgs["result"]["room"]>
 
 export type $RoomPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Room"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    people_ids: number[]
+    gueists_ids: number[]
     created_at: Date
     created_by: number
     room_name: string
@@ -838,7 +830,7 @@ export interface Prisma__RoomClient<T, Null = never, ExtArgs extends runtime.Typ
  */
 export interface RoomFieldRefs {
   readonly id: Prisma.FieldRef<"Room", 'Int'>
-  readonly people_ids: Prisma.FieldRef<"Room", 'Int[]'>
+  readonly gueists_ids: Prisma.FieldRef<"Room", 'Int[]'>
   readonly created_at: Prisma.FieldRef<"Room", 'DateTime'>
   readonly created_by: Prisma.FieldRef<"Room", 'Int'>
   readonly room_name: Prisma.FieldRef<"Room", 'String'>

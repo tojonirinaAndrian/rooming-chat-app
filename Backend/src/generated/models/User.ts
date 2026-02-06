@@ -28,10 +28,12 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   id: number | null
+  joined_rooms: number | null
 }
 
 export type UserSumAggregateOutputType = {
   id: number | null
+  joined_rooms: number[]
 }
 
 export type UserMinAggregateOutputType = {
@@ -53,16 +55,19 @@ export type UserCountAggregateOutputType = {
   email: number
   name: number
   password: number
+  joined_rooms: number
   _all: number
 }
 
 
 export type UserAvgAggregateInputType = {
   id?: true
+  joined_rooms?: true
 }
 
 export type UserSumAggregateInputType = {
   id?: true
+  joined_rooms?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -84,6 +89,7 @@ export type UserCountAggregateInputType = {
   email?: true
   name?: true
   password?: true
+  joined_rooms?: true
   _all?: true
 }
 
@@ -178,6 +184,7 @@ export type UserGroupByOutputType = {
   email: string
   name: string
   password: string
+  joined_rooms: number[]
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -208,6 +215,7 @@ export type UserWhereInput = {
   email?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
+  joined_rooms?: Prisma.IntNullableListFilter<"User">
 }
 
 export type UserOrderByWithRelationInput = {
@@ -215,6 +223,7 @@ export type UserOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  joined_rooms?: Prisma.SortOrder
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -225,6 +234,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
+  joined_rooms?: Prisma.IntNullableListFilter<"User">
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -232,6 +242,7 @@ export type UserOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  joined_rooms?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -247,12 +258,14 @@ export type UserScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
+  joined_rooms?: Prisma.IntNullableListFilter<"User">
 }
 
 export type UserCreateInput = {
   email: string
   name: string
   password: string
+  joined_rooms?: Prisma.UserCreatejoined_roomsInput | number[]
 }
 
 export type UserUncheckedCreateInput = {
@@ -260,12 +273,14 @@ export type UserUncheckedCreateInput = {
   email: string
   name: string
   password: string
+  joined_rooms?: Prisma.UserCreatejoined_roomsInput | number[]
 }
 
 export type UserUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  joined_rooms?: Prisma.UserUpdatejoined_roomsInput | number[]
 }
 
 export type UserUncheckedUpdateInput = {
@@ -273,6 +288,7 @@ export type UserUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  joined_rooms?: Prisma.UserUpdatejoined_roomsInput | number[]
 }
 
 export type UserCreateManyInput = {
@@ -280,12 +296,14 @@ export type UserCreateManyInput = {
   email: string
   name: string
   password: string
+  joined_rooms?: Prisma.UserCreatejoined_roomsInput | number[]
 }
 
 export type UserUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  joined_rooms?: Prisma.UserUpdatejoined_roomsInput | number[]
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -293,6 +311,15 @@ export type UserUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  joined_rooms?: Prisma.UserUpdatejoined_roomsInput | number[]
+}
+
+export type IntNullableListFilter<$PrismaModel = never> = {
+  equals?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
+  has?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
+  hasEvery?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
+  hasSome?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -300,10 +327,12 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  joined_rooms?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  joined_rooms?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -322,10 +351,20 @@ export type UserMinOrderByAggregateInput = {
 
 export type UserSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  joined_rooms?: Prisma.SortOrder
+}
+
+export type UserCreatejoined_roomsInput = {
+  set: number[]
 }
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type UserUpdatejoined_roomsInput = {
+  set?: number[]
+  push?: number | number[]
 }
 
 
@@ -335,6 +374,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   name?: boolean
   password?: boolean
+  joined_rooms?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -342,6 +382,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   name?: boolean
   password?: boolean
+  joined_rooms?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -349,6 +390,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   name?: boolean
   password?: boolean
+  joined_rooms?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -356,9 +398,10 @@ export type UserSelectScalar = {
   email?: boolean
   name?: boolean
   password?: boolean
+  joined_rooms?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "password", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "password" | "joined_rooms", ExtArgs["result"]["user"]>
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -368,6 +411,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string
     name: string
     password: string
+    joined_rooms: number[]
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -795,6 +839,7 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly password: Prisma.FieldRef<"User", 'String'>
+  readonly joined_rooms: Prisma.FieldRef<"User", 'Int[]'>
 }
     
 

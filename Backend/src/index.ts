@@ -284,7 +284,7 @@ app.post("/api/createRoom", async (c) => {
       data: {
         room_name,
         created_by,
-        people_ids: [created_by]
+        guests_ids: []
       }
     });
     return c.json ({
@@ -315,18 +315,26 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
   try {
     const currentRoom = await prismaClient.room.findFirst({
       where: {
-        id: Number(room_id), room_name
+        id: Number(room_id), 
+        room_name
       }
     });
 
     if (currentRoom) {
-      const new_people_ids: number[] = currentRoom.people_ids;
-      new_people_ids.push(Number(user_id));
+      const new_guests_ids: number[] = currentRoom.gueists_ids;
+      new_guests_ids.push(Number(user_id));
       const updatedRoom = await prismaClient.room.update({
         where: {
           room_name,
         }, data : {
-          people_ids: [...new_people_ids]
+          gueists_ids: [...new_guests_ids]
+        }
+      });
+      const updatedJoinedRoomsTable = (c as any).user.joined_rooms;
+      updatedJoinedRoomsTable.push(updatedRoom.id);
+      const updatedNewJoinedUser = await prismaClient.user.update({
+        where: {
+          joined_rooms: [...updatedJoinedRoomsTable]
         }
       });
       return c.json({
@@ -380,6 +388,7 @@ app.get("/api/get_rooms/:where", async (c) => {
   const user_id = (c as any).user.id;
   const where: "all" | "created" | "joined" = c.req.param("where") as "all" | "created" | "joined";
 
+  //created by current user
   if (where === "created") {
     try {
       const rooms = await prismaClient.room.findMany({
@@ -387,7 +396,81 @@ app.get("/api/get_rooms/:where", async (c) => {
           created_by: user_id
         }
       });
-      
+      return c.json({
+        rooms: rooms,
+        message: "success"
+      });
+    } catch(e) {
+      return c.json({
+        error: e,
+        message: "error"
+      })
+    }
+  }
+  //joined by current user
+  else if (where === "joined") {
+    try {
+      const userJoinedRooms: number[] = (c as any).user.joined_rooms;
+      const orTable: {}[] = userJoinedRooms.map((room_id) => {
+        return {
+          id: room_id
+        }
+      })
+      const rooms = await prismaClient.room.findMany({
+        where: {
+          OR: orTable
+        }
+      });
+      return c.json({
+        rooms: rooms,
+        message: "success"
+      });
+    } catch(e) {
+      return c.json({
+        error: e,
+        message: "error"
+      })
+    }
+  }
+
+  // all
+  else if (where === "all") {
+    try {
+      const userJoinedRooms: number[] = (c as any).user.joined_rooms;
+      const orTable: {
+        id: number
+      }[] = userJoinedRooms.map((room_id) => {
+        return {
+          id: room_id
+        }
+      });
+      const joinedRooms = await prismaClient.room.findMany({
+        where: {
+          OR: orTable
+        }
+      });
+      const createdRooms = await prismaClient.room.findMany({
+        where: {
+          created_by: user_id
+        }
+      });
+
+      const rooms: {
+        id: number;
+        gueists_ids: number[];
+        created_at: Date;
+        created_by: number;
+        room_name: string;
+      }[] = [];
+
+      joinedRooms.map((room) => rooms.push(room));
+      createdRooms.map((room) => rooms.push(room));
+
+      return c.json({
+        rooms: rooms,
+        message: "success"
+      });
+
     } catch(e) {
       return c.json({
         error: e,
