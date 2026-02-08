@@ -30,7 +30,8 @@ export default function Page() {
     const [where, setWhere] = useState<"all" | "created" | "joined">("all");
     const [roomsCharging, startRoomsCharging] = useTransition();
     const [rooms, setRooms] = useState<room[]>([]);
-    const [currentRoom, setCurrentRoom] = useState<room>();
+    const [currentRoom, setCurrentRoom] = useState<room>(); 
+    const [message, setMessage] = useState<string>("");
     useEffect(() => {
         startRoomsCharging(async () => {
             // TODO : get and show backend data 
@@ -110,7 +111,9 @@ export default function Page() {
                         {/* messages */}
                     </div>
                     <div className="p-3 border-slate-200 border shadow-md w-full rounded-md flex gap-2 bg-white">
-                        <input type="text" className="w-full p-3 outline-none" placeholder="Type a message..."/>
+                        <input 
+                        onChange={(e) => e.target.value.trim().length >= 1 && setMessage(e.target.value.trim())}
+                        type="text" className="w-full p-3 outline-none" placeholder="Type a message..."/>
                         <button className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80">Send</button>
                     </div>
                 </div>
