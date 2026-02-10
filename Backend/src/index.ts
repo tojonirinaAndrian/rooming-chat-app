@@ -34,57 +34,57 @@ serve({
 // CORS
 app.use('*', cors({
   origin: FRONT_URL,
-  allowMethods:['GET', 'POST', 'DELETE', 'PUT'],
-  allowHeaders:['Content-Type', 'Authorization'],
+  allowMethods: ['GET', 'POST', 'DELETE', 'PUT'],
+  allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
 // middleware that would run before every api req :
 app.use("*", async (c, next) => {
-    
-    const sessionId = Number(getCookie(c, COOKIE_NAME));
-    console.log("sessionId from cookie : " + sessionId);
-    if (!sessionId) return await next();
-    else {
-      // finding it in the DB
-      console.log("sessionId : " + sessionId);
-      const session = await prismaClient.session.findUnique({
-          where: {
-              sessionId
-          }
-      })
-      if (!session) return await next();
-      if (session.isRevoked) return await next(); // continues if isRevoked
-      if (session.expiresAt < new Date()) {
-        try {
-            // revoke it if the date is expired
-            await prismaClient.session.update({
-                where: { 
-                    sessionId 
-                }, data: { 
-                    isRevoked: true 
-                }
-            });
-        } catch (e) {
-          console.log(e)
-        }
-        return await next();
-      } else {
-        // adding new items to hono context "c"
-        (c as any).session = session;
-        const user = await prismaClient.user.findUnique ({
-            where: { id: Number(session.userId) }
-        });
-        (c as any).user = user;
-        return await next();
+
+  const sessionId = Number(getCookie(c, COOKIE_NAME));
+  console.log("sessionId from cookie : " + sessionId);
+  if (!sessionId) return await next();
+  else {
+    // finding it in the DB
+    console.log("sessionId : " + sessionId);
+    const session = await prismaClient.session.findUnique({
+      where: {
+        sessionId
       }
+    })
+    if (!session) return await next();
+    if (session.isRevoked) return await next(); // continues if isRevoked
+    if (session.expiresAt < new Date()) {
+      try {
+        // revoke it if the date is expired
+        await prismaClient.session.update({
+          where: {
+            sessionId
+          }, data: {
+            isRevoked: true
+          }
+        });
+      } catch (e) {
+        console.log(e)
+      }
+      return await next();
+    } else {
+      // adding new items to hono context "c"
+      (c as any).session = session;
+      const user = await prismaClient.user.findUnique({
+        where: { id: Number(session.userId) }
+      });
+      (c as any).user = user;
+      return await next();
+    }
   }
 })
 
 // session creation
 const createSession = async (
-  userId: number, 
-  ipAddress: string | undefined, 
+  userId: number,
+  ipAddress: string | undefined,
   userAgent: string | undefined
 ) => {
   const expiresAt = new Date(Date.now() + (SESSION_TTL * 1000));
@@ -94,7 +94,7 @@ const createSession = async (
       expiresAt,
       ipAddress,
       userAgent,
-      startedAt: new Date (),
+      startedAt: new Date(),
       // isRevoked: false
     }
   });
@@ -122,12 +122,12 @@ const cookieOptions = (maxAgeSeconds: number) => {
 const deleteAllExpiredSessions = async () => {
   try {
     await prismaClient.session.deleteMany({
-      where: { 
-        expiresAt: { 
-          lt: new Date() 
+      where: {
+        expiresAt: {
+          lt: new Date()
         }
       }
-    }) 
+    })
   } catch (error) {
     console.log(error)
   }
@@ -136,7 +136,7 @@ const deleteAllExpiredSessions = async () => {
 
 // REST API
 // test
-app.get('/', async(c) => {
+app.get('/', async (c) => {
   console.log("hello");
   return c.text('Hello Hono!');
 });
@@ -150,13 +150,13 @@ app.post("/api/login", async (c) => {
     email: string, password: string
   } = await c.req.json();
   try {
-    const userIfExists = await prismaClient.user.findUnique ({
+    const userIfExists = await prismaClient.user.findUnique({
       where: {
         email: body.email
       }
     });
     if (userIfExists) {
-      const isPasswordCorrect = await bcrypt.compare (body.password, userIfExists.password);
+      const isPasswordCorrect = await bcrypt.compare(body.password, userIfExists.password);
       if (!isPasswordCorrect) {
         return c.text("incorrectPassword");
       }
@@ -165,7 +165,7 @@ app.post("/api/login", async (c) => {
       try {
         const userSession: {
           sessionId: number, expiresAt: Date
-        } = await createSession (userIfExists.id, ipAddress, userAgent);
+        } = await createSession(userIfExists.id, ipAddress, userAgent);
         const generatedCookiesOptions = cookieOptions(SESSION_TTL);
 
         setCookie(c, COOKIE_NAME, String(userSession.sessionId), {
@@ -177,14 +177,14 @@ app.post("/api/login", async (c) => {
           domain: generatedCookiesOptions.domain,
           expires: generatedCookiesOptions.expires
         });
-        
+
         return c.text("doneLoggingIn");
       } catch (error) {
         return c.text("errorWhenCreatingSession");
       }
     }
     return c.text("emailDoesNotExist");
-  } catch(error) {
+  } catch (error) {
     console.log(error);
   }
 })
@@ -198,7 +198,7 @@ app.post("/api/signup", async (c) => {
     email: string, password: string, name: string
   } = await c.req.json();
   try {
-    const userIfExists = await prismaClient.user.findUnique ({
+    const userIfExists = await prismaClient.user.findUnique({
       where: {
         email: body.email
       }
@@ -217,7 +217,7 @@ app.post("/api/signup", async (c) => {
     try {
       const userSession: {
         sessionId: number, expiresAt: Date
-      } = await createSession (createdUser.id, ipAddress, userAgent);
+      } = await createSession(createdUser.id, ipAddress, userAgent);
 
       const generatedCookiesOptions = cookieOptions(SESSION_TTL);
       setCookie(c, COOKIE_NAME, String(userSession.sessionId), {
@@ -235,7 +235,7 @@ app.post("/api/signup", async (c) => {
       console.log(error)
     }
     return c.text("couldntSignUp");
-  } catch(error) {
+  } catch (error) {
     console.log(error);
   }
 })
@@ -243,11 +243,13 @@ app.post("/api/signup", async (c) => {
 // getCurrentUser
 app.get("/api/getCurrentUser", async (c) => {
   if ((c as any).user && (c as any).session) {
-    return c.json({user: {
-      name: (c as any).user.name,
-      email: (c as any).user.email,
-      id: (c as any).user.id
-    }})
+    return c.json({
+      user: {
+        name: (c as any).user.name,
+        email: (c as any).user.email,
+        id: (c as any).user.id
+      }
+    })
   } else {
     return c.text("notLoggedIn");
   }
@@ -259,16 +261,16 @@ app.get("/api/logout", async (c) => {
   if (session) {
     try {
       await prismaClient.session.update({
-        where: {sessionId: session.sessionId}, data: {
+        where: { sessionId: session.sessionId }, data: {
           isRevoked: true
         }
       });
-      return c.json({message: "logoutSuccessful"});
+      return c.json({ message: "logoutSuccessful" });
     } catch (error) {
-      return c.json({error, message: "error"});
+      return c.json({ error, message: "error" });
     }
   };
-  return c.json({error: "error while logging out, session seems to not exist", message: "error"});
+  return c.json({ error: "error while logging out, session seems to not exist", message: "error" });
 })
 
 // create_room
@@ -277,20 +279,20 @@ app.post("/api/createRoom", async (c) => {
     room_name: string,
   } = await c.req.json();
   if (!((c as any).user && (c as any).session)) {
-    return c.json({ message : "userNotLoggedIn"});
+    return c.json({ message: "userNotLoggedIn" });
   }
   const user_id: number = (c as any).user.id;
   const room_name: string = body.room_name;
   const created_by: number = Number(user_id);
-  
+
   try {
     const checkIfRoomNameExists = await prismaClient.room.findFirst({
       where: {
         room_name
-      } 
+      }
     })
     if (checkIfRoomNameExists) {
-      return c.json({message: "roomNameAlreadyExists"});
+      return c.json({ message: "roomNameAlreadyExists" });
     }
     const createdRoom = await prismaClient.room.create({
       data: {
@@ -298,7 +300,7 @@ app.post("/api/createRoom", async (c) => {
         created_by,
       }
     });
-    return c.json ({
+    return c.json({
       createdRoom: {
         room_name: createdRoom.room_name,
         room_id: createdRoom.id
@@ -306,8 +308,9 @@ app.post("/api/createRoom", async (c) => {
       message: "success"
     });
 
-  } catch(e) {
-    return c.json({error : e,
+  } catch (e) {
+    return c.json({
+      error: e,
       message: "error"
     });
   }
@@ -317,16 +320,16 @@ app.post("/api/createRoom", async (c) => {
 app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
   const room_name: string = c.req.param("room_name");
   const room_id: number = Number(c.req.param("room_id"));
-  
+
   if (!((c as any).user && (c as any).session)) {
-    return c.json({ message : "userNotLoggedIn"});
+    return c.json({ message: "userNotLoggedIn" });
   }
   const user_id = (c as any).user.id;
 
   try {
     const currentRoom = await prismaClient.room.findFirst({
       where: {
-        id: Number(room_id), 
+        id: Number(room_id),
         room_name
       }
     });
@@ -345,7 +348,7 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
       const updatedRoom = await prismaClient.room.update({
         where: {
           room_name,
-        }, data : {
+        }, data: {
           gueists_ids: [...new_guests_ids]
         }
       });
@@ -363,11 +366,11 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
         message: "success"
       });
     } else {
-      return c.json({message : "room_not_found"});
+      return c.json({ message: "room_not_found" });
     }
 
-  } catch(e) {
-    return c.json({error : e});
+  } catch (e) {
+    return c.json({ error: e });
   }
 });
 
@@ -384,14 +387,14 @@ app.get("/api/createRandomUsers", async (c) => {
     }, {
       name: "User3", email: "user3@email.com", password: await bcrypt.hash("passPass3!", 10)
     }];
-    
+
     const data = await prismaClient.user.createMany({
       data: [...new_users]
     });
-    
+
     return c.text("success");
-  } catch(e) {
-    return c.json({error : e});
+  } catch (e) {
+    return c.json({ error: e });
   }
 });
 
@@ -404,7 +407,7 @@ app.get("/api/getCurrentUsers", async (c) => {
 // user's rooms
 app.get("/api/get_rooms/:where", async (c) => {
   if (!((c as any).user && (c as any).session)) {
-    return c.json({ message : "userNotLoggedIn"});
+    return c.json({ message: "userNotLoggedIn" });
   }
   const user_id = (c as any).user.id;
   const where: "all" | "created" | "joined" = c.req.param("where") as "all" | "created" | "joined";
@@ -421,7 +424,7 @@ app.get("/api/get_rooms/:where", async (c) => {
         rooms: rooms,
         message: "success"
       });
-    } catch(e) {
+    } catch (e) {
       return c.json({
         error: e,
         message: "error"
@@ -446,7 +449,7 @@ app.get("/api/get_rooms/:where", async (c) => {
         rooms: rooms,
         message: "success"
       });
-    } catch(e) {
+    } catch (e) {
       return c.json({
         error: e,
         message: "error"
@@ -492,7 +495,7 @@ app.get("/api/get_rooms/:where", async (c) => {
         message: "success"
       });
 
-    } catch(e) {
+    } catch (e) {
       return c.json({
         error: e,
         message: "error"
@@ -536,7 +539,7 @@ io.on("connection", (socket) => {
 
   socket.on("send-message", ({ roomId, message }) => {
     const sender = socket.data.username || "unknown";
-    io.to(roomId).emit("receive-message", {sender, message});
+    io.to(roomId).emit("receive-message", { sender, message });
   });
 
   socket.on("disconnect", () => {

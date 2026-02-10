@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
@@ -8,22 +8,24 @@ function App() {
   const [username, setUsername] = useState("");
   const [roomId, setRoomId] = useState("");
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<{
-    message: string,
-    sender: string
-  }[]>([]);
+  const [messages, setMessages] = useState<
+    {
+      message: string;
+      sender: string;
+    }[]
+  >([]);
   const [joined, setJoined] = useState(false);
 
   // Listen for messages
   useEffect(() => {
     const handler = (msg: { message: string; sender: string }) => {
-        setMessages(prev => [...prev, msg]); // functional update — avoids stale closure
+      setMessages((prev) => [...prev, msg]); // functional update — avoids stale closure
     };
 
     socket.on("receive-message", handler);
 
     return () => {
-        socket.off("receive-message", handler); // remove same handler
+      socket.off("receive-message", handler); // remove same handler
     };
   }, []);
 
