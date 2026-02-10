@@ -16,14 +16,14 @@ function App() {
 
   // Listen for messages
   useEffect(() => {
-    socket.on("receive-message", (msg) => {
-        const previousMessages = [...messages];
-        previousMessages.push(msg)
-        setMessages(previousMessages);
-    });
+    const handler = (msg: { message: string; sender: string }) => {
+        setMessages(prev => [...prev, msg]); // functional update — avoids stale closure
+    };
+
+    socket.on("receive-message", handler);
 
     return () => {
-      socket.off("receive-message");
+        socket.off("receive-message", handler); // remove same handler
     };
   }, []);
 
