@@ -10,15 +10,26 @@ import dotenv from "dotenv";
 import bcrypt from 'bcryptjs';
 import { setCookie } from 'hono/cookie';
 import { getCookie, deleteCookie } from 'hono/cookie';
-import { IntNullableListFilter } from './generated/models';
+import http from "http";
 
 dotenv.config();
 
 const app = new Hono();
+
 const FRONT_URL: string = String(process.env.FRONT_URL);
 const PORT: string = String(process.env.PORT);
 const SESSION_TTL: number = Number(process.env.SESSION_TTL);
 const COOKIE_NAME: string = 'sessionId';
+
+// for http server
+const server = http.createServer();
+
+// attaching hono to HTTP
+serve({
+  fetch: app.fetch,
+  port: 3000,
+  createServer: () => server
+});
 
 // CORS
 app.use('*', cors({
@@ -490,6 +501,49 @@ app.get("/api/get_rooms/:where", async (c) => {
   }
 })
 
-fire(app);
+
+// use this for normal firing
+// fire(app);
+
+// // for http server
+// const server = http.createServer();
+
+// // attaching hono to HTTP
+// serve({
+//   fetch: app.fetch,
+//   port: 3000,
+//   createServer: () => server
+// });
+
+// Socket.IO
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: FRONT_URL,
+    methods: ['GET', 'POST']
+  }
+});
+
+// Socket Events
+io.on("connection", (socket) => {
+  console.log("user connected", socket.id);
+
+  // Joining private room
+  socket.on("join-room", ({ roomId, username }) => {
+    socket.join(roomId);
+    socket.data.username = username;
+    console.log(`${username} joined room ${roomId}`);
+  });
+
+  socket.on("send-message", ({ roomId, message }) => {
+    const sender = socket.data.username || "unknown";
+    io.to(roomId).emit("receive-message", {sender, message});
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected", socket.id);
+  })
+})
+
+console.log("Server running on http://localhost:3000");
 
 export default app;
