@@ -1,17 +1,17 @@
-import { Hono } from 'hono';
+import { Hono } from "hono";
+import { serve } from "@hono/node-server";
+import { Server } from "socket.io";
 import { fire } from "hono/service-worker";
-import { cors } from "hono/cors";
-import { prismaClient } from './prismaClient';
-import { serve } from '@hono/node-server';
-import { Server as SocketIOServer } from 'socket.io';
-import dotenv from "dotenv";
-import bcrypt from 'bcryptjs';
-import { setCookie } from 'hono/cookie';
-import { getCookie, deleteCookie } from 'hono/cookie';
 import http from "http";
 import { contextStorage, getContext } from "hono/context-storage";
-dotenv.config();
+import { setCookie } from 'hono/cookie';
+import { getCookie, deleteCookie } from 'hono/cookie';
+import bcrypt from 'bcryptjs';
+import { cors } from "hono/cors";
+import { prismaClient } from './prismaClient';
+import dotenv from "dotenv";
 
+dotenv.config();
 const FRONT_URL: string = String(process.env.FRONT_URL);
 const PORT: string = String(process.env.PORT);
 const SESSION_TTL: number = Number(process.env.SESSION_TTL);
@@ -19,17 +19,36 @@ const COOKIE_NAME: string = 'sessionId';
 
 type Env = {
   Variables: {
-    userVariable: {
+    user: {
       name: string;
       id: number;
       email: string;
       password: string;
       joined_rooms: number[];
+    },
+    session: {
+      sessionId: number;
+      userId: number;
+      startedAt: Date;
+      expiresAt: Date;
+      ipAddress: string | null;
+      userAgent: string | null;
+      isRevoked: boolean;
     }
   }
 }
 
-const app = new Hono();
+const getUser = () => {
+  return getContext<Env>().var.user
+};
+const getSession = () => {
+  return getContext<Env>().var.session
+}
+
+const app = new Hono<Env>();
+
+//contexing
+app.use(contextStorage())
 
 // CORS
 app.use('*', cors({
@@ -39,12 +58,11 @@ app.use('*', cors({
   credentials: true
 }));
 
-// middleware that would run before every api req :
+// auth middlware
 app.use("*", async (c, next) => {
-  console.log("middleware");
   const sessionId = Number(getCookie(c, COOKIE_NAME));
   console.log("sessionId from cookie : " + sessionId);
-  if (!sessionId || isNaN(sessionId)) return await next()
+  if (!sessionId || isNaN(sessionId)) return await next();
   else {
     // finding it in the DB
     console.log("sessionId : " + sessionId);
@@ -71,21 +89,19 @@ app.use("*", async (c, next) => {
       console.log("expired");
       return await next();
     } else {
-      // adding new items to hono context "c"
-      (c as any).session = session;
+      c.set("session", session);
       const user = await prismaClient.user.findUnique({
         where: { id: Number(session.userId) }
       });
       if (user) {
-        (c as any).user = user;
-        c.set("userVariable", user);
+        c.set("user", user);
       }
       return await next();
     }
   }
 })
 
-// session creation
+// session creation function
 const createSession = async (
   userId: number,
   ipAddress: string | undefined,
@@ -137,17 +153,12 @@ const deleteAllExpiredSessions = async () => {
   }
 }
 
-// REST API
-// test
-app.get('/', (c) => {
-  console.log("hello");
-  return c.text('Hello Hono!');
-});
-
+// API REST :
+app.get("/", (c) => c.text("Running"));
 // login
 app.post("/api/login", async (c) => {
   console.log("logging IN !");
-  if ((c as any).session && (c as any).user) {
+  if (getSession() && getUser()) {
     return c.text("loggedIn");
   }
   const body: {
@@ -191,11 +202,11 @@ app.post("/api/login", async (c) => {
   } catch (error) {
     console.log(error);
   }
-})
+});
 
 // signup
 app.post("/api/signup", async (c) => {
-  if ((c as any).session && (c as any).user) {
+  if (getSession() && getUser()) {
     return c.text("loggedIn");
   };
   const body: {
@@ -244,14 +255,15 @@ app.post("/api/signup", async (c) => {
   }
 })
 
+
 // getCurrentUser
 app.get("/api/getCurrentUser", async (c) => {
-  if ((c as any).user && (c as any).session) {
+  if (getUser() && getSession()) {
     return c.json({
       user: {
-        name: (c as any).user.name,
-        email: (c as any).user.email,
-        id: (c as any).user.id
+        name: getUser().name,
+        email: getUser().email,
+        id: getUser().id
       }
     })
   } else {
@@ -261,7 +273,7 @@ app.get("/api/getCurrentUser", async (c) => {
 
 // logout
 app.get("/api/logout", async (c) => {
-  const session = (c as any).session;
+  const session = getSession();
   if (session) {
     try {
       await prismaClient.session.update({
@@ -282,10 +294,10 @@ app.post("/api/createRoom", async (c) => {
   const body: {
     room_name: string,
   } = await c.req.json();
-  if (!((c as any).user && (c as any).session)) {
+  if (!(getUser() && getSession())) {
     return c.json({ message: "userNotLoggedIn" });
   }
-  const user_id: number = (c as any).user.id;
+  const user_id: number = getUser().id;
   const room_name: string = body.room_name;
   const created_by: number = Number(user_id);
 
@@ -325,10 +337,10 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
   const room_name: string = c.req.param("room_name");
   const room_id: number = Number(c.req.param("room_id"));
 
-  if (!((c as any).user && (c as any).session)) {
+  if (!(getUser() && getSession())) {
     return c.json({ message: "userNotLoggedIn" });
   }
-  const user_id = (c as any).user.id;
+  const user_id = getUser().id;
 
   try {
     const currentRoom = await prismaClient.room.findFirst({
@@ -356,7 +368,7 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
           gueists_ids: [...new_guests_ids]
         }
       });
-      const updatedJoinedRoomsTable: number[] = (c as any).user.joined_rooms;
+      const updatedJoinedRoomsTable: number[] = getUser().joined_rooms;
       updatedJoinedRoomsTable.push(updatedRoom.id);
       const updatedNewJoinedUser = await prismaClient.user.update({
         where: {
@@ -378,42 +390,12 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
   }
 });
 
-// test user creation
-app.get("/api/createRandomUsers", async (c) => {
-  try {
-    await prismaClient.user.deleteMany();
-    const new_users: {
-      name: string, email: string, password: string
-    }[] = [{
-      name: "User1", email: "user1@email.com", password: await bcrypt.hash("passPass1!", 10)
-    }, {
-      name: "User2", email: "user2@email.com", password: await bcrypt.hash("passPass2!", 10)
-    }, {
-      name: "User3", email: "user3@email.com", password: await bcrypt.hash("passPass3!", 10)
-    }];
-
-    const data = await prismaClient.user.createMany({
-      data: [...new_users]
-    });
-
-    return c.text("success");
-  } catch (e) {
-    return c.json({ error: e });
-  }
-});
-
-app.get("/api/getCurrentUsers", async (c) => {
-  const users = await prismaClient.user.findMany();
-  if (users) return c.json(users)
-  else return c.text("error")
-});
-
 // user's rooms
 app.get("/api/get_rooms/:where", async (c) => {
-  if (!((c as any).user && (c as any).session)) {
+  if (!(getUser() && getSession())) {
     return c.json({ message: "userNotLoggedIn" });
   }
-  const user_id = (c as any).user.id;
+  const user_id = getUser().id;
   const where: "all" | "created" | "joined" = c.req.param("where") as "all" | "created" | "joined";
 
   //created by current user
@@ -438,7 +420,7 @@ app.get("/api/get_rooms/:where", async (c) => {
   //joined by current user
   else if (where === "joined") {
     try {
-      const userJoinedRooms: number[] = (c as any).user.joined_rooms;
+      const userJoinedRooms: number[] = getUser().joined_rooms;
       const orTable: {}[] = userJoinedRooms.map((room_id) => {
         return {
           id: room_id
@@ -464,7 +446,7 @@ app.get("/api/get_rooms/:where", async (c) => {
   // all
   else if (where === "all") {
     try {
-      const userJoinedRooms: number[] = (c as any).user.joined_rooms;
+      const userJoinedRooms: number[] = getUser().joined_rooms;
       const orTable: {
         id: number
       }[] = userJoinedRooms.map((room_id) => {
@@ -508,116 +490,10 @@ app.get("/api/get_rooms/:where", async (c) => {
   }
 })
 
-// for http server
-// const server = http.createServer();
 
-// serve({
-//   fetch: app.fetch,
-//   port: Number(PORT) || 3000,
-//   createServer: () => server
-// });
-
-fire(app);
-export default app;
-
-// Socket.IO
-// const io = new SocketIOServer(server, {
-//   cors: {
-//     origin: FRONT_URL,
-//     methods: ['GET', 'POST', 'DELETE', 'PUT'],
-//   }
-// });
-
-// Socket Events
-// io.on("connection", async (socket) => {
-//   console.log("user connected", socket.id);
-//   // GET all actually joined rooms and join them with socket.io:
-
-//   socket.on("join-all-rooms", async () => {
-//     console.log("joining all room", socket.id);
-//     // if (getCurrentUser()) {
-//     //   const currentUser = getCurrentUser();
-//     //   try {
-//     //     const userJoinedRooms: number[] = currentUser.joined_rooms;
-//     //     const orTable: {
-//     //       id: number
-//     //     }[] = userJoinedRooms.map((room_id) => {
-//     //       return {
-//     //         id: room_id
-//     //       }
-//     //     });
-//     //     console.log("getting rooms");
-//     //     const joinedRooms = await prismaClient.room.findMany({
-//     //       where: {
-//     //         OR: orTable
-//     //       }
-//     //     });
-//     //     console.log("got joined");
-//     //     const createdRooms = await prismaClient.room.findMany({
-//     //       where: {
-//     //         created_by: currentUser.id
-//     //       }
-//     //     });
-//     //     console.log("got created");
-//     //     const rooms: {
-//     //       id: number,
-//     //       gueists_ids: number[],
-//     //       created_at: Date,
-//     //       created_by: number,
-//     //       room_name: string
-//     //     }[] = [];
-
-//     //     joinedRooms.map((room) => rooms.push(room));
-//     //     createdRooms.map((room) => rooms.push(room));
-//     //     rooms.map((room) => {
-//     //       socket.join(`${room.id}`);
-//     //     });
-//     //     console.log("joined all rooms.");
-//     //   } catch (e) {
-//     //     console.log(e)
-//     //     return
-//     //   }
-//     // } else {
-//     //   console.log("no current user found");
-//     //   return;
-//     // }
-//   });
-
-//   // Joining private room
-//   socket.on("join-room", ({ roomName, roomId, currentUser }: {
-//     roomName: string,
-//     roomId: number,
-//     currentUser: {
-//       name: string,
-//       email: string,
-//       id: number
-//     }
-//   }) => {
-//     console.log("joining private", socket.id);
-//     socket.join(`${roomId}`);
-//     socket.data.currentUser = currentUser;
-//     console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
-//     io.to(`${roomId}`).emit("new-user-joined", currentUser);
-//   });
-
-//   socket.on("send-message", ({ roomName, roomId, message, currentUser }: {
-//     roomId: number,
-//     message: string,
-//     currentUser: {
-//       name: string,
-//       email: string,
-//       id: number,
-//     },
-//     roomName: string
-//   }) => {
-//     console.log("sending-message", socket.id);
-//     const sender = socket.data.currentUser || currentUser;
-//     io.to(`${roomId}`).emit("receive-message", { sender, message });
-//   });
-
-//   socket.on("disconnect", () => {
-//     console.log("user disconnected", socket.id);
-//   })
-// })
-
-// console.log("Server running on http://localhost:" + PORT);
+// fire(app);
+// export default app;
+// ORRR using THIS for nodeJs server
+serve(app, (info) => {
+  console.log("listening to port ", info.port)
+})

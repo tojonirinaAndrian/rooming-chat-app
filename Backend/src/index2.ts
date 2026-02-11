@@ -517,9 +517,6 @@ app.get("/api/get_rooms/:where", async (c) => {
 //   createServer: () => server
 // });
 
-fire(app);
-export default app;
-
 // Socket.IO
 // const io = new SocketIOServer(server, {
 //   cors: {
