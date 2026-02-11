@@ -10,6 +10,7 @@ import { cors } from "hono/cors";
 import { prismaClient } from './prismaClient';
 import dotenv from "dotenv";
 import { Server as SocketIoServer } from "socket.io";
+import cookie from "cookie";
 
 dotenv.config();
 const FRONT_URL: string = String(process.env.FRONT_URL);
@@ -454,16 +455,6 @@ app.get("/api/get_rooms/:where", async (c) => {
           id: room_id
         }
       });
-      const joinedRooms = await prismaClient.room.findMany({
-        where: {
-          OR: orTable
-        }
-      });
-      const createdRooms = await prismaClient.room.findMany({
-        where: {
-          created_by: user_id
-        }
-      });
 
       const rooms: {
         id: number;
@@ -471,10 +462,16 @@ app.get("/api/get_rooms/:where", async (c) => {
         created_at: Date;
         created_by: number;
         room_name: string;
-      }[] = [];
-
-      joinedRooms.map((room) => rooms.push(room));
-      createdRooms.map((room) => rooms.push(room));
+      }[] = await prismaClient.room.findMany({
+        where: {
+          OR: [
+            ...orTable,
+            {
+              created_by: user_id
+            }
+          ]
+        }
+      });
 
       return c.json({
         rooms: rooms,
@@ -503,12 +500,57 @@ const io = new SocketIoServer(server, {
   }
 });
 
+io.use((socket, next) => {
+  const cookiesString = socket.handshake.headers.cookie;
+  const cookies = cookie.parse(cookiesString || '');
+  const sessionId = Number(cookies[COOKIE_NAME]);
+  console.log("sessionId from cookie : " + sessionId);
+  if (!sessionId) return next(new Error("Anauthorized"));
+  console.log("tryna get the user");
+  socket.data.user = getUser();
+  console.log("got the user");
+  next();
+});
+
 io.on("connection", async (socket) => {
   console.log("user connected ", socket.id);
   // Joining private room
-  socket.on("join-all-rooms", () => {
+  socket.on("join-all-rooms", async () => {
     console.log("joining all", socket.id);
-    
+
+    const userJoinedRooms: number[] = socket.data.user.joined_rooms;
+    const orTable: {
+      id: number
+    }[] = userJoinedRooms.map((room_id) => {
+      return {
+        id: room_id
+      }
+    });
+    try {
+      const rooms: {
+        id: number;
+        gueists_ids: number[];
+        created_at: Date;
+        created_by: number;
+        room_name: string;
+      }[] = await prismaClient.room.findMany({
+        where: {
+          OR: [
+            ...orTable,
+            {
+              created_by: socket.data.user.id
+            }
+          ]
+        }
+      });
+      console.log("tryna join all rooms");
+      rooms.map((room) => {
+        socket.join(`${room.id}`);
+      });
+      console.log("joined all rooms");
+    } catch (e) {
+      console.log("error while tryna join all current rooms : ", e)
+    }
   })
   socket.on("join-room", ({ roomName, roomId, currentUser }: {
     roomName: string,

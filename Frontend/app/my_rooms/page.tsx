@@ -36,6 +36,14 @@ type messageFromSocket = {
 export default function Page() {
     const { setWhereIsPrincipal, hasHydrated, loggedIn, currentUser } = useGlobalStore();
     const router = useRouter();
+    const { socket } = useSocketStore();
+    const [where, setWhere] = useState<"all" | "created" | "joined">("all");
+    const [roomsCharging, startRoomsCharging] = useTransition();
+    const [rooms, setRooms] = useState<room[]>([]);
+    const [currentRoom, setCurrentRoom] = useState<room>();
+    const [message, setMessage] = useState<string>("");
+    const [messages, setMessages] = useState<messageFromSocket[]>([]);
+
     useEffect(() => {
         if (hasHydrated) {
             if (loggedIn === false) {
@@ -46,12 +54,20 @@ export default function Page() {
             setWhereIsPrincipal("myRooms");
         }
     }, [hasHydrated]);
-    const [where, setWhere] = useState<"all" | "created" | "joined">("all");
-    const [roomsCharging, startRoomsCharging] = useTransition();
-    const [rooms, setRooms] = useState<room[]>([]);
-    const [currentRoom, setCurrentRoom] = useState<room>();
-    const [message, setMessage] = useState<string>("");
-    const [messages, setMessages] = useState<messageFromSocket[]>([])
+
+    // TODo: useEffect when the user receives messages
+    useEffect(() => {
+        if (socket) {
+            socket.on("receive-message", (message: messageFromSocket) => {
+                setMessages(prev => [...prev, message])
+            });
+            return () => {
+                socket.off("receive-message", (message: messageFromSocket) => {
+                    setMessages(prev => [...prev, message])
+                });
+            }
+        }
+    }, [])
 
     useEffect(() => {
         startRoomsCharging(async () => {
@@ -68,18 +84,6 @@ export default function Page() {
         })
     }, [where]);
 
-    // TODo: useEffect when the user receives messages
-    useEffect(() => {
-        socketConnection.on("receive-message", (message: messageFromSocket) => {
-            setMessages(prev => [...prev, message])
-        });
-        return () => {
-            socketConnection.off("receive-message", (message: messageFromSocket) => {
-                setMessages(prev => [...prev, message])
-            });
-        }
-    }, [])
-
     const onRoomClick = async (room: room) => {
         // GET THE ROOMS messages (messages)
         setCurrentRoom(room);
@@ -90,7 +94,7 @@ export default function Page() {
     const onSendClick = async () => {
         // SENDING THE MESSAGE ::: THE WHOLE CORE
         if (currentRoom) {
-            socketConnection.emit("send-message", {
+            socket.emit("send-message", {
                 roomName: currentRoom.room_name,
                 roomId: currentRoom.id,
                 message: message,
@@ -163,9 +167,9 @@ export default function Page() {
                         <input
                             onChange={(e) => e.target.value.trim().length >= 1 && setMessage(e.target.value.trim())}
                             type="text" className="w-full p-3 outline-none" placeholder="Type a message..." />
-                        <button 
-                        onClick={() => onSendClick()}
-                        className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80">Send</button>
+                        <button
+                            onClick={() => onSendClick()}
+                            className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80">Send</button>
                     </div>
                 </div>
             </div>

@@ -19,7 +19,8 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         const socket = getSocketConnection();
         if (token) socket.auth = { token };
         socket.connect();
-
+        socket.emit("join-all-rooms");
+        
         socket.on("connect", () => {
             set({ connected: true, socket: socket })
         });

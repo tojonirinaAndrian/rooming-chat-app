@@ -66,7 +66,7 @@ export default function SignIn() {
                 setCurrentUser(response.data.user);
                 setWhereIsPrincipal("createRoom");
                 setLoggedIn(true);
-                router.push("/createRoom");
+                router.push("/create_room");
             }
         });
     };
