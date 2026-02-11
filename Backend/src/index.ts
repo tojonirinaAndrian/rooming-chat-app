@@ -500,16 +500,39 @@ const io = new SocketIoServer(server, {
   }
 });
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const cookiesString = socket.handshake.headers.cookie;
   const cookies = cookie.parse(cookiesString || '');
   const sessionId = Number(cookies[COOKIE_NAME]);
   console.log("sessionId from cookie : " + sessionId);
-  if (!sessionId) return next(new Error("Anauthorized"));
-  console.log("tryna get the user");
-  socket.data.user = getUser();
-  console.log("got the user");
-  next();
+  
+  if (!sessionId || isNaN(sessionId)) {
+    return next(new Error("Unauthorized"));
+  }
+
+  try {
+    const session = await prismaClient.session.findUnique({
+      where: { sessionId }
+    });
+    
+    if (!session || session.isRevoked || session.expiresAt < new Date()) {
+      return next(new Error("Invalid session"));
+    }
+
+    const user = await prismaClient.user.findUnique({
+      where: { id: session.userId }
+    });
+    
+    if (!user) {
+      return next(new Error("User not found"));
+    }
+
+    socket.data.user = user;
+    next();
+  } catch (error) {
+    console.log("Auth error:", error);
+    next(new Error("Authentication failed"));
+  }
 });
 
 io.on("connection", async (socket) => {
