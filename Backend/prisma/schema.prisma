@@ -40,9 +40,10 @@ model Room {
 }
 
 model Message {
-  id         Int      @id @default(autoincrement())
-  content    String
-  sent_by_id Int
-  room_id    Int
-  created_at DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  content      String
+  sent_by_id   Int
+  sent_by_name String
+  room_id      Int
+  created_at   DateTime @default(now())
 }

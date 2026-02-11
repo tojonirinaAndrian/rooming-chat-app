@@ -10,7 +10,7 @@ import { socketConnection } from "../socket/socket";
 export default function CreateRoom () {
     const router = useRouter();
     const { 
-       loggedIn, currentUser, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated, setRoomState
+       loggedIn, currentUser, setWhereIsPrincipal, hasHydrated
     } = useGlobalStore();
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
@@ -96,7 +96,7 @@ export default function CreateRoom () {
                     >Rooms</button>}
                     <button 
                         className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(creatingRoom || roomName.length <= 5) && " opacity-50 "}`}
-                        onClick={(e) => {
+                        onClick={() => {
                             (roomName.length > 5) && onCreateRoomClick();
                         }}
                     >{creatingRoom ? "Creating room..." : "Create"}</button>

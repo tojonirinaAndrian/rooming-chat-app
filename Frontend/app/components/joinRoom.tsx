@@ -33,7 +33,7 @@ export default function JoinRoom() {
     //TODO : Create a function that triggers then the button create room is clicked
     const onJoinRoomClick = () => {
         startJoiningRoom(async () => {
-            //TODO : Call from backend;
+            //TODO: Call from backend;
             if (roomName.length < 5) {
                 setRoomNameError("* must be at least 5 characters");
                 return

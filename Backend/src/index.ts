@@ -573,11 +573,11 @@ io.on("connection", async (socket) => {
     });
 
     const rooms: {
-      id: number;
-      gueists_ids: number[];
-      created_at: Date;
-      created_by: number;
-      room_name: string;
+      id: number,
+      gueists_ids: number[],
+      created_at: Date,
+      created_by: number,
+      room_name: string
     }[] = [];
 
     joinedRooms.map((room) => rooms.push(room));
@@ -596,19 +596,29 @@ io.on("connection", async (socket) => {
     roomName: string,
     roomId: number,
     currentUser: {
-      name: string;
-      email: string;
-      id: number;
+      name: string,
+      email: string,
+      id: number
     }
   }) => {
     socket.join(`${roomId}`);
+    socket.data.currentUser = currentUser;
     console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
     io.to(`${roomId}`).emit("new-user-joined", currentUser);
   });
 
-  socket.on("send-message", ({ roomId, message }) => {
-    const sender = socket.data.username || "unknown";
-    io.to(roomId).emit("receive-message", { sender, message });
+  socket.on("send-message", ({ roomName, roomId, message, currentUser }: {
+    roomId: number,
+    message: string,
+    currentUser: {
+      name: string,
+      email: string,
+      id: number,
+    },
+    roomName: string
+  }) => {
+    const sender = socket.data.currentUser || currentUser;
+    io.to(`${roomId}`).emit("receive-message", { sender, message });
   });
 
   socket.on("disconnect", () => {
