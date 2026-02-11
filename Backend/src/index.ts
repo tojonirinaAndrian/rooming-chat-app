@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Context, Hono } from 'hono';
 import { fire } from "hono/service-worker";
 import { cors } from "hono/cors";
 import { prismaClient } from './prismaClient';
@@ -11,10 +11,22 @@ import bcrypt from 'bcryptjs';
 import { setCookie } from 'hono/cookie';
 import { getCookie, deleteCookie } from 'hono/cookie';
 import http from "http";
-
+import { contextStorage, getContext } from "hono/context-storage";
 dotenv.config();
 
-const app = new Hono();
+type Env = {
+  Variables: {
+    userVariable: {
+      name: string;
+      id: number;
+      email: string;
+      password: string;
+      joined_rooms: number[];
+    }
+  }
+}
+
+const app = new Hono<Env>();
 
 const FRONT_URL: string = String(process.env.FRONT_URL);
 const PORT: string = String(process.env.PORT);
@@ -30,6 +42,12 @@ serve({
   port: 3000,
   createServer: () => server
 });
+
+// Contexting
+app.use(contextStorage())
+const getCurrentUser = () => {
+  return getContext<Env>().var.userVariable;
+}
 
 // CORS
 app.use('*', cors({
@@ -75,7 +93,10 @@ app.use("*", async (c, next) => {
       const user = await prismaClient.user.findUnique({
         where: { id: Number(session.userId) }
       });
-      (c as any).user = user;
+      if (user) {
+        (c as any).user = user;
+        c.set("userVariable", user);
+      }
       return await next();
     }
   }
@@ -527,14 +548,61 @@ const io = new SocketIOServer(server, {
 });
 
 // Socket Events
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("user connected", socket.id);
+  // GET all actually joined rooms:
+  const currentUser = getCurrentUser();
+  try {
+    const userJoinedRooms: number[] = currentUser.joined_rooms;
+    const orTable: {
+      id: number
+    }[] = userJoinedRooms.map((room_id) => {
+      return {
+        id: room_id
+      }
+    });
+    const joinedRooms = await prismaClient.room.findMany({
+      where: {
+        OR: orTable
+      }
+    });
+    const createdRooms = await prismaClient.room.findMany({
+      where: {
+        created_by: currentUser.id
+      }
+    });
 
+    const rooms: {
+      id: number;
+      gueists_ids: number[];
+      created_at: Date;
+      created_by: number;
+      room_name: string;
+    }[] = [];
+
+    joinedRooms.map((room) => rooms.push(room));
+    createdRooms.map((room) => rooms.push(room));
+    rooms.map((room) => {
+      socket.join(`${room.id}`);
+    });
+
+  } catch (e) {
+    console.log(e)
+    return
+  }
   // Joining private room
-  socket.on("join-room", ({ roomId, username }) => {
-    socket.join(roomId);
-    socket.data.username = username;
-    console.log(`${username} joined room ${roomId}`);
+  socket.on("join-room", ({ roomName, roomId, currentUser }: {
+    roomName: string,
+    roomId: number,
+    currentUser: {
+      name: string;
+      email: string;
+      id: number;
+    }
+  }) => {
+    socket.join(`${roomId}`);
+    console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
+    io.to(`${roomId}`).emit("new-user-joined", currentUser);
   });
 
   socket.on("send-message", ({ roomId, message }) => {
