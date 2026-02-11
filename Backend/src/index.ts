@@ -551,46 +551,50 @@ app.get("/api/get_rooms/:where", async (c) => {
 io.on("connection", async (socket) => {
   console.log("user connected", socket.id);
   // GET all actually joined rooms and join them with socket.io:
-  const currentUser = getCurrentUser();
-  try {
-    const userJoinedRooms: number[] = currentUser.joined_rooms;
-    const orTable: {
-      id: number
-    }[] = userJoinedRooms.map((room_id) => {
-      return {
-        id: room_id
+
+  socket.on("join-all-rooms", async () => {
+    if (getCurrentUser()) {
+      const currentUser = getCurrentUser();
+      try {
+        const userJoinedRooms: number[] = currentUser.joined_rooms;
+        const orTable: {
+          id: number
+        }[] = userJoinedRooms.map((room_id) => {
+          return {
+            id: room_id
+          }
+        });
+        const joinedRooms = await prismaClient.room.findMany({
+          where: {
+            OR: orTable
+          }
+        });
+        const createdRooms = await prismaClient.room.findMany({
+          where: {
+            created_by: currentUser.id
+          }
+        });
+
+        const rooms: {
+          id: number,
+          gueists_ids: number[],
+          created_at: Date,
+          created_by: number,
+          room_name: string
+        }[] = [];
+
+        joinedRooms.map((room) => rooms.push(room));
+        createdRooms.map((room) => rooms.push(room));
+        rooms.map((room) => {
+          socket.join(`${room.id}`);
+        });
+
+      } catch (e) {
+        console.log(e)
+        return
       }
-    });
-    const joinedRooms = await prismaClient.room.findMany({
-      where: {
-        OR: orTable
-      }
-    });
-    const createdRooms = await prismaClient.room.findMany({
-      where: {
-        created_by: currentUser.id
-      }
-    });
-
-    const rooms: {
-      id: number,
-      gueists_ids: number[],
-      created_at: Date,
-      created_by: number,
-      room_name: string
-    }[] = [];
-
-    joinedRooms.map((room) => rooms.push(room));
-    createdRooms.map((room) => rooms.push(room));
-    rooms.map((room) => {
-      socket.join(`${room.id}`);
-    });
-
-  } catch (e) {
-    console.log(e)
-    return
-  }
-
+    }
+  })
   // Joining private room
   socket.on("join-room", ({ roomName, roomId, currentUser }: {
     roomName: string,
