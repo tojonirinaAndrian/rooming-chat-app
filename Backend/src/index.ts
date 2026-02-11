@@ -550,7 +550,7 @@ const io = new SocketIOServer(server, {
 // Socket Events
 io.on("connection", async (socket) => {
   console.log("user connected", socket.id);
-  // GET all actually joined rooms:
+  // GET all actually joined rooms and join them with socket.io:
   const currentUser = getCurrentUser();
   try {
     const userJoinedRooms: number[] = currentUser.joined_rooms;
@@ -590,6 +590,7 @@ io.on("connection", async (socket) => {
     console.log(e)
     return
   }
+
   // Joining private room
   socket.on("join-room", ({ roomName, roomId, currentUser }: {
     roomName: string,

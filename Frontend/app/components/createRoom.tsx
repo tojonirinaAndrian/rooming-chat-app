@@ -5,11 +5,12 @@ import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";
 import axiosInstance from "../axios/axiosInstance";
+import { socketConnection } from "../socket/socket";
 
 export default function CreateRoom () {
     const router = useRouter();
     const { 
-       loggedIn, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated, setRoomState
+       loggedIn, currentUser, setLoggedIn, whereIsPrincipal, setWhereIsPrincipal, hasHydrated, setRoomState
     } = useGlobalStore();
     const [creatingRoom, startCreatingRoom] = useTransition();
     const [roomName, setRoomName] = useState<string> ("");
@@ -40,6 +41,12 @@ export default function CreateRoom () {
                 setSuccess(true);
                 setGlobalState("success");
                 console.log("success");
+                // TODO: Join room via socket.io
+                socketConnection.emit("join-room", {
+                    roomName: roomName,
+                    roomId: res.data.createdRoom.id,
+                    currentUser: currentUser
+                });
             } else if (res.data.message === "roomNameAlreadyExists"){
                 setGlobalState("* room already exists");
             } else {
@@ -83,7 +90,7 @@ export default function CreateRoom () {
                     </p>}
                     {success && <button 
                         className={`w-full p-3 rounded-sm bg-slate-100 hover:bg-slate-200 text-black font-semibold cursor-pointer`}
-                        onClick={(e) => {
+                        onClick={() => {
                             router.push("/my_rooms")
                         }}
                     >Rooms</button>}
