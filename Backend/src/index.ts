@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { fire } from "hono/service-worker";
-import http from "http";
+import http, { createServer } from "http";
 import { contextStorage, getContext } from "hono/context-storage";
 import { setCookie } from 'hono/cookie';
 import { getCookie, deleteCookie } from 'hono/cookie';
@@ -490,17 +490,22 @@ app.get("/api/get_rooms/:where", async (c) => {
   }
 })
 
+
+const server = serve(app, (info) => {
+  console.log("listening to port ", info.port)
+});
+
 // socket.Io
-const io = new SocketIoServer({
+const io = new SocketIoServer(server, {
   cors: {
     origin: FRONT_URL,
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
   }
 });
 
-io.on("connection", async(socket) => {
+io.on("connection", async (socket) => {
   console.log("user connected ", socket.id);
-   // Joining private room
+  // Joining private room
   socket.on("join-all-rooms", () => {
     console.log("joining all", socket.id);
   })
@@ -514,10 +519,10 @@ io.on("connection", async(socket) => {
     }
   }) => {
     console.log("joining private", socket.id);
-    // socket.join(`${roomId}`);
-    // socket.data.currentUser = currentUser;
-    // console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
-    // io.to(`${roomId}`).emit("new-user-joined", currentUser);
+    socket.join(`${roomId}`);
+    socket.data.currentUser = currentUser;
+    console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
+    io.to(`${roomId}`).emit("new-user-joined", currentUser);
   });
 
   socket.on("send-message", ({ roomName, roomId, message, currentUser }: {
@@ -531,8 +536,8 @@ io.on("connection", async(socket) => {
     roomName: string
   }) => {
     console.log("sending-message", socket.id);
-    // const sender = socket.data.currentUser || currentUser;
-    // io.to(`${roomId}`).emit("receive-message", { sender, message });
+    const sender = socket.data.currentUser || currentUser;
+    io.to(`${roomId}`).emit("receive-message", { sender, message });
   });
 
   socket.on("disconnect", () => {
@@ -543,6 +548,4 @@ io.on("connection", async(socket) => {
 // fire(app);
 // export default app;
 // ORRR using THIS for nodeJs server
-serve(app, (info) => {
-  console.log("listening to port ", info.port)
-});
+// THE ONE BEFORE THE SOCKET.IO SERVING
