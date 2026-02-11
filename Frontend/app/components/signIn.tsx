@@ -1,9 +1,7 @@
 'use client';
-import axios from "axios";
 import { ChangeEvent, useEffect, useState, useTransition } from "react";
 import { z } from "zod";
 import { useGlobalStore } from "../store/use-globale-store";
-import HeaderComponent from "./header";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../axios/axiosInstance";
 import { socketConnection } from "../socket/socket";
@@ -24,7 +22,7 @@ const passwordSchema = z
 .refine((val) => /[^A-Za-z0-9]/.test(val), "Password must contain a special character");
 
 export default function SignIn () {
-    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn, loggedIn, hasHydrated} = useGlobalStore();
+    const {setCurrentUser, setWhereIsPrincipal, setLoggedIn, hasHydrated} = useGlobalStore();
     const router = useRouter();
     const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
@@ -56,13 +54,14 @@ export default function SignIn () {
             else if (response.data === "errorWhenCreatingSession") {
                 setSigningError("An error happened when creating the session, please try again");
             } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
+                console.log("done logging in");
                 const response = await axiosInstance.get("/api/getCurrentUser");
                 setCurrentUser(response.data.user);
                 setWhereIsPrincipal("createRoom");
                 setLoggedIn(true);
+                console.log("implemented the user");
                 // TODO : Join all rooms via websockets
                 socketConnection.emit("join-all-rooms");
-                // const rooms = await axiosInstance.get("/api/getAllRooms");
                 router.push("/create_room");
             }
         });

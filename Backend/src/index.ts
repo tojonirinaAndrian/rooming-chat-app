@@ -14,6 +14,11 @@ import http from "http";
 import { contextStorage, getContext } from "hono/context-storage";
 dotenv.config();
 
+const FRONT_URL: string = String(process.env.FRONT_URL);
+const PORT: string = String(process.env.PORT);
+const SESSION_TTL: number = Number(process.env.SESSION_TTL);
+const COOKIE_NAME: string = 'sessionId';
+
 type Env = {
   Variables: {
     userVariable: {
@@ -27,12 +32,6 @@ type Env = {
 }
 
 const app = new Hono<Env>();
-
-const FRONT_URL: string = String(process.env.FRONT_URL);
-const PORT: string = String(process.env.PORT);
-const SESSION_TTL: number = Number(process.env.SESSION_TTL);
-const COOKIE_NAME: string = 'sessionId';
-
 // for http server
 const server = http.createServer();
 
@@ -40,15 +39,8 @@ const server = http.createServer();
 const io = new SocketIOServer(server, {
   cors: {
     origin: FRONT_URL,
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST', 'DELETE', 'PUT']
   }
-});
-
-// attaching hono to HTTP
-serve({
-  fetch: app.fetch,
-  port: Number(PORT) || 3000,
-  createServer: () => server
 });
 
 // Contexting
@@ -67,10 +59,10 @@ app.use('*', cors({
 
 // middleware that would run before every api req :
 app.use("*", async (c, next) => {
-  console.log(c);
+  console.log("middleware");
   const sessionId = Number(getCookie(c, COOKIE_NAME));
   console.log("sessionId from cookie : " + sessionId);
-  if (!sessionId) return await next();
+  if (!sessionId) return await next()
   else {
     // finding it in the DB
     console.log("sessionId : " + sessionId);
@@ -94,6 +86,7 @@ app.use("*", async (c, next) => {
       } catch (e) {
         console.log(e)
       }
+      console.log("expired");
       return await next();
     } else {
       // adding new items to hono context "c"
@@ -172,6 +165,7 @@ app.get('/', async (c) => {
 
 // login
 app.post("/api/login", async (c) => {
+  console.log("logging IN !");
   if ((c as any).session && (c as any).user) {
     return c.text("loggedIn");
   }
@@ -553,6 +547,7 @@ io.on("connection", async (socket) => {
   // GET all actually joined rooms and join them with socket.io:
 
   socket.on("join-all-rooms", async () => {
+    console.log("joining all room", socket.id);
     if (getCurrentUser()) {
       const currentUser = getCurrentUser();
       try {
@@ -564,17 +559,19 @@ io.on("connection", async (socket) => {
             id: room_id
           }
         });
+        console.log("getting rooms");
         const joinedRooms = await prismaClient.room.findMany({
           where: {
             OR: orTable
           }
         });
+        console.log("got joined");
         const createdRooms = await prismaClient.room.findMany({
           where: {
             created_by: currentUser.id
           }
         });
-
+        console.log("got created");
         const rooms: {
           id: number,
           gueists_ids: number[],
@@ -588,7 +585,7 @@ io.on("connection", async (socket) => {
         rooms.map((room) => {
           socket.join(`${room.id}`);
         });
-
+        console.log("joined all rooms.");
       } catch (e) {
         console.log(e)
         return
@@ -605,6 +602,7 @@ io.on("connection", async (socket) => {
       id: number
     }
   }) => {
+    console.log("joining private", socket.id);
     socket.join(`${roomId}`);
     socket.data.currentUser = currentUser;
     console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
@@ -621,6 +619,7 @@ io.on("connection", async (socket) => {
     },
     roomName: string
   }) => {
+    console.log("sending-message", socket.id);
     const sender = socket.data.currentUser || currentUser;
     io.to(`${roomId}`).emit("receive-message", { sender, message });
   });
@@ -629,6 +628,14 @@ io.on("connection", async (socket) => {
     console.log("user disconnected", socket.id);
   })
 })
+
+// attaching hono to HTTP
+serve({
+  fetch: app.fetch,
+  port: Number(PORT) || 3000,
+  createServer: () => server
+});
+
 
 console.log("Server running on http://localhost:3000");
 
