@@ -2,7 +2,7 @@
   "name": "hono",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot src/toBeTested.ts"
+    "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",

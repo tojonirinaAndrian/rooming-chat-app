@@ -34,7 +34,7 @@ type messageFromSocket = {
 }
 
 export default function Page() {
-    const { whereIsPrincipal, setWhereIsPrincipal, hasHydrated, loggedIn, currentUser } = useGlobalStore();
+    const { setWhereIsPrincipal, hasHydrated, loggedIn, currentUser } = useGlobalStore();
     const router = useRouter();
     useEffect(() => {
         if (hasHydrated) {
@@ -83,6 +83,7 @@ export default function Page() {
     const onRoomClick = async (room: room) => {
         // GET THE ROOMS messages (messages)
         setCurrentRoom(room);
+        // TOdO: later, change this into the actual messages from the backend.
         setMessages([]);
     };
 
@@ -162,7 +163,9 @@ export default function Page() {
                         <input
                             onChange={(e) => e.target.value.trim().length >= 1 && setMessage(e.target.value.trim())}
                             type="text" className="w-full p-3 outline-none" placeholder="Type a message..." />
-                        <button className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80">Send</button>
+                        <button 
+                        onClick={() => onSendClick()}
+                        className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80">Send</button>
                     </div>
                 </div>
             </div>
