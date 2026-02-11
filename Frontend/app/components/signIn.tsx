@@ -6,6 +6,7 @@ import { useGlobalStore } from "../store/use-globale-store";
 import HeaderComponent from "./header";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../axios/axiosInstance";
+import { socketConnection } from "../socket/socket";
 
 const emailSchema = z
 .string()
@@ -59,6 +60,9 @@ export default function SignIn () {
                 setCurrentUser(response.data.user);
                 setWhereIsPrincipal("createRoom");
                 setLoggedIn(true);
+                // TODO : Join all rooms via websockets
+                socketConnection.emit("join-all-rooms");
+                // const rooms = await axiosInstance.get("/api/getAllRooms");
                 router.push("/create_room");
             }
         });
