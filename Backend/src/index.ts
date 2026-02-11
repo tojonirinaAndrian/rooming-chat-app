@@ -3,8 +3,6 @@ import { Hono } from 'hono';
 import { cors } from "hono/cors";
 import { prismaClient } from './prismaClient';
 import { serve } from '@hono/node-server';
-// import { createClient } from 'redis';
-// import { createAdapter } from '@socket.io/redis-adapter';
 import { Server as SocketIOServer } from 'socket.io';
 import dotenv from "dotenv";
 import bcrypt from 'bcryptjs';
@@ -32,19 +30,9 @@ type Env = {
 }
 
 const app = new Hono<Env>();
-// for http server
-const server = http.createServer();
-
-// Socket.IO
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: FRONT_URL,
-    methods: ['GET', 'POST', 'DELETE', 'PUT']
-  }
-});
 
 // Contexting
-app.use(contextStorage())
+app.use (contextStorage ());
 const getCurrentUser = () => {
   return getContext<Env>().var.userVariable;
 }
@@ -155,10 +143,9 @@ const deleteAllExpiredSessions = async () => {
   }
 }
 
-
 // REST API
 // test
-app.get('/', async (c) => {
+app.get('/', (c) => {
   console.log("hello");
   return c.text('Hello Hono!');
 });
@@ -527,19 +514,23 @@ app.get("/api/get_rooms/:where", async (c) => {
   }
 })
 
+// for http server
+const server = http.createServer();
 
-// use this for normal firing
-// fire(app);
+serve({
+  fetch: app.fetch,
+  port: Number(PORT) || 3000,
+  createServer: () => server
+});
 
-// // for http server
-// const server = http.createServer();
-
-// // attaching hono to HTTP
-// serve({
-//   fetch: app.fetch,
-//   port: 3000,
-//   createServer: () => server
-// });
+// Socket.IO
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: FRONT_URL,
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
+    credentials: true
+  }
+});
 
 // Socket Events
 io.on("connection", async (socket) => {
@@ -590,8 +581,12 @@ io.on("connection", async (socket) => {
         console.log(e)
         return
       }
+    } else {
+      console.log("no current user found");
+      return;
     }
-  })
+  });
+
   // Joining private room
   socket.on("join-room", ({ roomName, roomId, currentUser }: {
     roomName: string,
@@ -629,14 +624,4 @@ io.on("connection", async (socket) => {
   })
 })
 
-// attaching hono to HTTP
-serve({
-  fetch: app.fetch,
-  port: Number(PORT) || 3000,
-  createServer: () => server
-});
-
-
-console.log("Server running on http://localhost:3000");
-
-// export default app;
+console.log("Server running on http://localhost:" + PORT);
