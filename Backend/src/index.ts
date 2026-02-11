@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-// import { fire } from "hono/service-worker";
+import { fire } from "hono/service-worker";
 import { cors } from "hono/cors";
 import { prismaClient } from './prismaClient';
 import { serve } from '@hono/node-server';
@@ -29,13 +29,7 @@ type Env = {
   }
 }
 
-const app = new Hono<Env>();
-
-// Contexting
-app.use (contextStorage ());
-const getCurrentUser = () => {
-  return getContext<Env>().var.userVariable;
-}
+const app = new Hono();
 
 // CORS
 app.use('*', cors({
@@ -50,7 +44,7 @@ app.use("*", async (c, next) => {
   console.log("middleware");
   const sessionId = Number(getCookie(c, COOKIE_NAME));
   console.log("sessionId from cookie : " + sessionId);
-  if (!sessionId) return await next()
+  if (!sessionId || isNaN(sessionId)) return await next()
   else {
     // finding it in the DB
     console.log("sessionId : " + sessionId);
@@ -515,113 +509,115 @@ app.get("/api/get_rooms/:where", async (c) => {
 })
 
 // for http server
-const server = http.createServer();
+// const server = http.createServer();
 
-serve({
-  fetch: app.fetch,
-  port: Number(PORT) || 3000,
-  createServer: () => server
-});
+// serve({
+//   fetch: app.fetch,
+//   port: Number(PORT) || 3000,
+//   createServer: () => server
+// });
+
+fire(app);
+export default app;
 
 // Socket.IO
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: FRONT_URL,
-    methods: ['GET', 'POST', 'DELETE', 'PUT'],
-    credentials: true
-  }
-});
+// const io = new SocketIOServer(server, {
+//   cors: {
+//     origin: FRONT_URL,
+//     methods: ['GET', 'POST', 'DELETE', 'PUT'],
+//   }
+// });
 
 // Socket Events
-io.on("connection", async (socket) => {
-  console.log("user connected", socket.id);
-  // GET all actually joined rooms and join them with socket.io:
+// io.on("connection", async (socket) => {
+//   console.log("user connected", socket.id);
+//   // GET all actually joined rooms and join them with socket.io:
 
-  socket.on("join-all-rooms", async () => {
-    console.log("joining all room", socket.id);
-    if (getCurrentUser()) {
-      const currentUser = getCurrentUser();
-      try {
-        const userJoinedRooms: number[] = currentUser.joined_rooms;
-        const orTable: {
-          id: number
-        }[] = userJoinedRooms.map((room_id) => {
-          return {
-            id: room_id
-          }
-        });
-        console.log("getting rooms");
-        const joinedRooms = await prismaClient.room.findMany({
-          where: {
-            OR: orTable
-          }
-        });
-        console.log("got joined");
-        const createdRooms = await prismaClient.room.findMany({
-          where: {
-            created_by: currentUser.id
-          }
-        });
-        console.log("got created");
-        const rooms: {
-          id: number,
-          gueists_ids: number[],
-          created_at: Date,
-          created_by: number,
-          room_name: string
-        }[] = [];
+//   socket.on("join-all-rooms", async () => {
+//     console.log("joining all room", socket.id);
+//     // if (getCurrentUser()) {
+//     //   const currentUser = getCurrentUser();
+//     //   try {
+//     //     const userJoinedRooms: number[] = currentUser.joined_rooms;
+//     //     const orTable: {
+//     //       id: number
+//     //     }[] = userJoinedRooms.map((room_id) => {
+//     //       return {
+//     //         id: room_id
+//     //       }
+//     //     });
+//     //     console.log("getting rooms");
+//     //     const joinedRooms = await prismaClient.room.findMany({
+//     //       where: {
+//     //         OR: orTable
+//     //       }
+//     //     });
+//     //     console.log("got joined");
+//     //     const createdRooms = await prismaClient.room.findMany({
+//     //       where: {
+//     //         created_by: currentUser.id
+//     //       }
+//     //     });
+//     //     console.log("got created");
+//     //     const rooms: {
+//     //       id: number,
+//     //       gueists_ids: number[],
+//     //       created_at: Date,
+//     //       created_by: number,
+//     //       room_name: string
+//     //     }[] = [];
 
-        joinedRooms.map((room) => rooms.push(room));
-        createdRooms.map((room) => rooms.push(room));
-        rooms.map((room) => {
-          socket.join(`${room.id}`);
-        });
-        console.log("joined all rooms.");
-      } catch (e) {
-        console.log(e)
-        return
-      }
-    } else {
-      console.log("no current user found");
-      return;
-    }
-  });
+//     //     joinedRooms.map((room) => rooms.push(room));
+//     //     createdRooms.map((room) => rooms.push(room));
+//     //     rooms.map((room) => {
+//     //       socket.join(`${room.id}`);
+//     //     });
+//     //     console.log("joined all rooms.");
+//     //   } catch (e) {
+//     //     console.log(e)
+//     //     return
+//     //   }
+//     // } else {
+//     //   console.log("no current user found");
+//     //   return;
+//     // }
+//   });
 
-  // Joining private room
-  socket.on("join-room", ({ roomName, roomId, currentUser }: {
-    roomName: string,
-    roomId: number,
-    currentUser: {
-      name: string,
-      email: string,
-      id: number
-    }
-  }) => {
-    console.log("joining private", socket.id);
-    socket.join(`${roomId}`);
-    socket.data.currentUser = currentUser;
-    console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
-    io.to(`${roomId}`).emit("new-user-joined", currentUser);
-  });
+//   // Joining private room
+//   socket.on("join-room", ({ roomName, roomId, currentUser }: {
+//     roomName: string,
+//     roomId: number,
+//     currentUser: {
+//       name: string,
+//       email: string,
+//       id: number
+//     }
+//   }) => {
+//     console.log("joining private", socket.id);
+//     socket.join(`${roomId}`);
+//     socket.data.currentUser = currentUser;
+//     console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
+//     io.to(`${roomId}`).emit("new-user-joined", currentUser);
+//   });
 
-  socket.on("send-message", ({ roomName, roomId, message, currentUser }: {
-    roomId: number,
-    message: string,
-    currentUser: {
-      name: string,
-      email: string,
-      id: number,
-    },
-    roomName: string
-  }) => {
-    console.log("sending-message", socket.id);
-    const sender = socket.data.currentUser || currentUser;
-    io.to(`${roomId}`).emit("receive-message", { sender, message });
-  });
+//   socket.on("send-message", ({ roomName, roomId, message, currentUser }: {
+//     roomId: number,
+//     message: string,
+//     currentUser: {
+//       name: string,
+//       email: string,
+//       id: number,
+//     },
+//     roomName: string
+//   }) => {
+//     console.log("sending-message", socket.id);
+//     const sender = socket.data.currentUser || currentUser;
+//     io.to(`${roomId}`).emit("receive-message", { sender, message });
+//   });
 
-  socket.on("disconnect", () => {
-    console.log("user disconnected", socket.id);
-  })
-})
+//   socket.on("disconnect", () => {
+//     console.log("user disconnected", socket.id);
+//   })
+// })
 
-console.log("Server running on http://localhost:" + PORT);
+// console.log("Server running on http://localhost:" + PORT);
