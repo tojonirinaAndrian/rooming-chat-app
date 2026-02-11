@@ -1,10 +1,10 @@
-import { Context, Hono } from 'hono';
-import { fire } from "hono/service-worker";
+import { Hono } from 'hono';
+// import { fire } from "hono/service-worker";
 import { cors } from "hono/cors";
 import { prismaClient } from './prismaClient';
 import { serve } from '@hono/node-server';
-import { createClient } from 'redis';
-import { createAdapter } from '@socket.io/redis-adapter';
+// import { createClient } from 'redis';
+// import { createAdapter } from '@socket.io/redis-adapter';
 import { Server as SocketIOServer } from 'socket.io';
 import dotenv from "dotenv";
 import bcrypt from 'bcryptjs';
@@ -36,10 +36,18 @@ const COOKIE_NAME: string = 'sessionId';
 // for http server
 const server = http.createServer();
 
+// Socket.IO
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: FRONT_URL,
+    methods: ['GET', 'POST']
+  }
+});
+
 // attaching hono to HTTP
 serve({
   fetch: app.fetch,
-  port: 3000,
+  port: Number(PORT) || 3000,
   createServer: () => server
 });
 
@@ -59,7 +67,7 @@ app.use('*', cors({
 
 // middleware that would run before every api req :
 app.use("*", async (c, next) => {
-
+  console.log(c);
   const sessionId = Number(getCookie(c, COOKIE_NAME));
   console.log("sessionId from cookie : " + sessionId);
   if (!sessionId) return await next();
@@ -539,14 +547,6 @@ app.get("/api/get_rooms/:where", async (c) => {
 //   createServer: () => server
 // });
 
-// Socket.IO
-const io = new SocketIOServer(server, {
-  cors: {
-    origin: FRONT_URL,
-    methods: ['GET', 'POST']
-  }
-});
-
 // Socket Events
 io.on("connection", async (socket) => {
   console.log("user connected", socket.id);
@@ -628,4 +628,4 @@ io.on("connection", async (socket) => {
 
 console.log("Server running on http://localhost:3000");
 
-export default app;
+// export default app;
