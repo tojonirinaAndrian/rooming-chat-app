@@ -1,5 +1,7 @@
+// 'use client';
 import type { Metadata } from "next";
 import "./globals.css";
+// import { useSocketStore } from "./store/use-socket-store";
 
 export const metadata: Metadata = {
   title: "Real time chat app",

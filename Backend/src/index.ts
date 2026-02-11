@@ -508,6 +508,7 @@ io.on("connection", async (socket) => {
   // Joining private room
   socket.on("join-all-rooms", () => {
     console.log("joining all", socket.id);
+    
   })
   socket.on("join-room", ({ roomName, roomId, currentUser }: {
     roomName: string,

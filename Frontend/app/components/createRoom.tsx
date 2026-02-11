@@ -5,15 +5,14 @@ import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";
 import axiosInstance from "../axios/axiosInstance";
-import { socketConnection } from "../socket/socket";
 
-export default function CreateRoom () {
+export default function CreateRoom() {
     const router = useRouter();
-    const { 
-       loggedIn, currentUser, setWhereIsPrincipal, hasHydrated
+    const {
+        loggedIn, currentUser, setWhereIsPrincipal, hasHydrated
     } = useGlobalStore();
     const [creatingRoom, startCreatingRoom] = useTransition();
-    const [roomName, setRoomName] = useState<string> ("");
+    const [roomName, setRoomName] = useState<string>("");
     const [roomNameError, setRoomNameError] = useState<string>("");
     const [globalState, setGlobalState] = useState<string>("");
     const [success, setSuccess] = useState<boolean>(false);
@@ -42,12 +41,8 @@ export default function CreateRoom () {
                 setGlobalState("success");
                 console.log("success");
                 // TODO: Join room via socket.io
-                socketConnection.emit("join-room", {
-                    roomName: roomName,
-                    roomId: res.data.createdRoom.id,
-                    currentUser: currentUser
-                });
-            } else if (res.data.message === "roomNameAlreadyExists"){
+
+            } else if (res.data.message === "roomNameAlreadyExists") {
                 setGlobalState("* room already exists");
             } else {
                 setGlobalState("* an error occured");
@@ -76,32 +71,32 @@ export default function CreateRoom () {
                     <p className=" text-slate-600">Please enter the room name</p>
                 </div>
                 <div className="space-y-3">
-                    <input 
+                    <input
                         name="room_name"
-                        onChange={(e) => onRoomNameChange(e)} 
-                        type="text" 
+                        onChange={(e) => onRoomNameChange(e)}
+                        type="text"
                         className="p-3 rounded-sm border border-slate-300 w-full " placeholder="enter room name..."
                     />
                     {roomNameError.length > 0 && <p className="text-red-500! m-2">
                         * {roomNameError}
-                    </p>} 
+                    </p>}
                     {globalState.length > 0 && <p className={`text-center font-semibold ${(globalState === "success") ? "text-green-600" : "text-red-500"}`}>
                         {globalState}
                     </p>}
-                    {success && <button 
+                    {success && <button
                         className={`w-full p-3 rounded-sm bg-slate-100 hover:bg-slate-200 text-black font-semibold cursor-pointer`}
                         onClick={() => {
                             router.push("/my_rooms")
                         }}
                     >Rooms</button>}
-                    <button 
+                    <button
                         className={`w-full p-3 rounded-sm bg-black hover:bg-black/85 text-white font-semibold cursor-pointer ${(creatingRoom || roomName.length <= 5) && " opacity-50 "}`}
                         onClick={() => {
                             (roomName.length > 5) && onCreateRoomClick();
                         }}
                     >{creatingRoom ? "Creating room..." : "Create"}</button>
                 </div>
-            </div>            
+            </div>
         </div>
     </>
 }

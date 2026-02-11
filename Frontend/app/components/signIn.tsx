@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../axios/axiosInstance";
-import socketConnection from "../socket/socket";
+import { useSocketStore } from "../store/use-socket-store";
 
 const emailSchema = z
     .string()
@@ -23,6 +23,7 @@ const passwordSchema = z
 
 export default function SignIn() {
     const { setCurrentUser, setWhereIsPrincipal, setLoggedIn, hasHydrated } = useGlobalStore();
+    const { connect, socket } = useSocketStore();
     const router = useRouter();
     const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
@@ -46,25 +47,27 @@ export default function SignIn() {
                 email, password
             });
             console.log(response);
-            // if (response.data === "emailDoesNotExist") {
-            //     setSigningError("Email does not exist");
-            // }
-            // else if (response.data === "incorrectPassword") {
-            //     setSigningError("Incorrect password");
-            // }
-            // else if (response.data === "errorWhenCreatingSession") {
-            //     setSigningError("An error happened when creating the session, please try again");
-            // } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
-            //     console.log("done logging in");
-            //     const response = await axiosInstance.get("/api/getCurrentUser");
-            //     setCurrentUser(response.data.user);
-            //     setWhereIsPrincipal("createRoom");
-            //     setLoggedIn(true);
-            //     console.log("implemented the user");
-            //     // TODO : Join all rooms via websockets
-            //     socketConnection.emit("join-all-rooms");
-            //     router.push("/create_room");
-            // }
+            if (response.data === "emailDoesNotExist") {
+                setSigningError("Email does not exist");
+            }
+            else if (response.data === "incorrectPassword") {
+                setSigningError("Incorrect password");
+            }
+            else if (response.data === "errorWhenCreatingSession") {
+                setSigningError("An error happened when creating the session, please try again");
+            } else if (response.data === "doneLoggingIn" || response.data === "loggedIn") {
+                console.log("done logging in");
+                const response = await axiosInstance.get("/api/getCurrentUser");
+                console.log("implemented the user");
+                // TODO : Join all rooms via websockets
+                if (!socket) {
+                    connect();
+                };
+                setCurrentUser(response.data.user);
+                setWhereIsPrincipal("createRoom");
+                setLoggedIn(true);
+                router.push("/createRoom");
+            }
         });
     };
 

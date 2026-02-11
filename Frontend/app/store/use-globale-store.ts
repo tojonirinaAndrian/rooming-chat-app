@@ -12,24 +12,24 @@ interface useStoreProps {
     currentUser: {
         name: string, email: string, id: number
     },
-     setCurrentUser: (arg0: {
+    setCurrentUser: (arg0: {
         name: string, email: string, id: number
     }) => void;
     hasHydrated: boolean;
     roomState: {
         name: string, id: number
     };
-    setRoomState: (arg0 : {
+    setRoomState: (arg0: {
         name: string, id: number
     }) => void
 }
 
-export const useGlobalStore = create<useStoreProps>() (
-	persist (
+export const useGlobalStore = create<useStoreProps>()(
+    persist(
         (set, get) => ({
             hasHydrated: false,
             whereIsPrincipal: "login",
-            setWhereIsPrincipal : (where: whereIsPrincipalType) => {
+            setWhereIsPrincipal: (where: whereIsPrincipalType) => {
                 set(() => {
                     return ({
                         whereIsPrincipal: where
@@ -46,7 +46,7 @@ export const useGlobalStore = create<useStoreProps>() (
             },
             currentUser: {
                 name: "", id: 0, email: ""
-            }, 
+            },
             setCurrentUser: (currentUser: {
                 name: string, email: string, id: number
             }) => {
@@ -57,7 +57,7 @@ export const useGlobalStore = create<useStoreProps>() (
                 })
             },
             roomState: {
-                name:"", id: 0
+                name: "", id: 0
             },
             setRoomState: (state) => {
                 set(() => {
@@ -67,12 +67,12 @@ export const useGlobalStore = create<useStoreProps>() (
                 })
             }
         }), {
-            name: "global",
-            onRehydrateStorage: () => (state) => {
-                if (state) {
-                    state.hasHydrated = true;
-                }
+        name: "global",
+        onRehydrateStorage: () => (state) => {
+            if (state) {
+                state.hasHydrated = true;
             }
         }
+    }
     )
 )

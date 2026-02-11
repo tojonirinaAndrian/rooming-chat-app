@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../axios/axiosInstance";
-import { socketConnection } from "../socket/socket";
 
 // Schema for email and password validation
 const emailSchema = z
@@ -59,7 +58,7 @@ export default function SignUp() {
                 setWhereIsPrincipal("createRoom");
                 setLoggedIn(true);
                 // TODO : Join all rooms via websockets
-                socketConnection.emit("join-all-rooms");
+                // socketConnection.emit("join-all-rooms");
                 router.push("/create_room");
             }
         });

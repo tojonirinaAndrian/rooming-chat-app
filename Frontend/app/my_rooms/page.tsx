@@ -5,7 +5,7 @@ import HeaderComponent from "../components/header";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../axios/axiosInstance";
-import { socketConnection } from "../socket/socket";
+import { useSocketStore } from "../store/use-socket-store";
 
 type room = {
     room_name: string,
