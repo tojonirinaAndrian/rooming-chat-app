@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
-import { Server } from "socket.io";
 import { fire } from "hono/service-worker";
 import http from "http";
 import { contextStorage, getContext } from "hono/context-storage";
@@ -10,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import { cors } from "hono/cors";
 import { prismaClient } from './prismaClient';
 import dotenv from "dotenv";
+import { Server as SocketIoServer } from "socket.io";
 
 dotenv.config();
 const FRONT_URL: string = String(process.env.FRONT_URL);
@@ -490,10 +490,59 @@ app.get("/api/get_rooms/:where", async (c) => {
   }
 })
 
+// socket.Io
+const io = new SocketIoServer({
+  cors: {
+    origin: FRONT_URL,
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
+  }
+});
+
+io.on("connection", async(socket) => {
+  console.log("user connected ", socket.id);
+   // Joining private room
+  socket.on("join-all-rooms", () => {
+    console.log("joining all", socket.id);
+  })
+  socket.on("join-room", ({ roomName, roomId, currentUser }: {
+    roomName: string,
+    roomId: number,
+    currentUser: {
+      name: string,
+      email: string,
+      id: number
+    }
+  }) => {
+    console.log("joining private", socket.id);
+    // socket.join(`${roomId}`);
+    // socket.data.currentUser = currentUser;
+    // console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
+    // io.to(`${roomId}`).emit("new-user-joined", currentUser);
+  });
+
+  socket.on("send-message", ({ roomName, roomId, message, currentUser }: {
+    roomId: number,
+    message: string,
+    currentUser: {
+      name: string,
+      email: string,
+      id: number,
+    },
+    roomName: string
+  }) => {
+    console.log("sending-message", socket.id);
+    // const sender = socket.data.currentUser || currentUser;
+    // io.to(`${roomId}`).emit("receive-message", { sender, message });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected", socket.id);
+  })
+})
 
 // fire(app);
 // export default app;
 // ORRR using THIS for nodeJs server
 serve(app, (info) => {
   console.log("listening to port ", info.port)
-})
+});
