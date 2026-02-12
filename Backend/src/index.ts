@@ -9,7 +9,7 @@ import bcrypt from 'bcryptjs';
 import { cors } from "hono/cors";
 import { prismaClient } from './prismaClient';
 import dotenv from "dotenv";
-import { Server as SocketIoServer } from "socket.io";
+import { Socket, Server as SocketIoServer } from "socket.io";
 import cookie from "cookie";
 
 dotenv.config();
@@ -17,6 +17,15 @@ const FRONT_URL: string = String(process.env.FRONT_URL);
 const PORT: string = String(process.env.PORT);
 const SESSION_TTL: number = Number(process.env.SESSION_TTL);
 const COOKIE_NAME: string = 'sessionId';
+
+type messageFromSocket = {
+  message: string,
+  roomId: number,
+  sender: {
+    name: string,
+    id: number
+  }
+};
 
 type Env = {
   Variables: {
@@ -391,6 +400,64 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
   }
 });
 
+// save message to the db
+const saveMessage = async (messageToSaveAndSocketInstance: {
+  roomId: number,
+  message: string,
+  socket: Socket
+}) => {
+  const user = messageToSaveAndSocketInstance.socket.data.user as {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+    joined_rooms: number[];
+  };
+  try {
+    await prismaClient.message.create({
+      data: {
+        content: messageToSaveAndSocketInstance.message,
+        sent_by_id: user.id,
+        sent_by_name: user.name,
+        room_id: messageToSaveAndSocketInstance.roomId,
+      }
+    })
+    return "success";
+  } catch (e) {
+    console.log (e);
+    return "error";
+  }
+}
+
+// room's messages
+app.get("/api/get_messages/:room_id", async (c) => {
+  const room_id: number = Number(c.req.param("room_id"));
+  try {
+    const messages = await prismaClient.message.findMany({
+      where: {
+        room_id
+      }
+    });
+    const messagesTable: messageFromSocket[] = messages.map((message) => {
+      return {
+        message: message.content,
+        roomId: message.room_id,
+        sender: {
+          name: message.sent_by_name,
+          id: message.sent_by_id
+        }
+      }
+    });
+    return c.json({
+      message: "success",
+      messagesTable: [...messagesTable]
+    });
+  } catch (e) {
+    console.log("error", e);
+    return c.json({ message: "error", "error": e });
+  }
+})
+
 // user's rooms
 app.get("/api/get_rooms/:where", async (c) => {
   if (!(getUser() && getSession())) {
@@ -465,7 +532,7 @@ app.get("/api/get_rooms/:where", async (c) => {
       }[] = await prismaClient.room.findMany({
         where: {
           OR: [
-            ...orTable,
+            { id: { in: userJoinedRooms } },
             {
               created_by: user_id
             }
@@ -505,7 +572,7 @@ io.use(async (socket, next) => {
   const cookies = cookie.parse(cookiesString || '');
   const sessionId = Number(cookies[COOKIE_NAME]);
   console.log("sessionId from cookie : " + sessionId);
-  
+
   if (!sessionId || isNaN(sessionId)) {
     return next(new Error("Unauthorized"));
   }
@@ -514,7 +581,7 @@ io.use(async (socket, next) => {
     const session = await prismaClient.session.findUnique({
       where: { sessionId }
     });
-    
+
     if (!session || session.isRevoked || session.expiresAt < new Date()) {
       return next(new Error("Invalid session"));
     }
@@ -522,7 +589,7 @@ io.use(async (socket, next) => {
     const user = await prismaClient.user.findUnique({
       where: { id: session.userId }
     });
-    
+
     if (!user) {
       return next(new Error("User not found"));
     }
@@ -537,18 +604,12 @@ io.use(async (socket, next) => {
 
 io.on("connection", async (socket) => {
   console.log("user connected ", socket.id);
+  const currentUser = socket.data.user;
   // Joining private room
   socket.on("join-all-rooms", async () => {
     console.log("joining all", socket.id);
 
     const userJoinedRooms: number[] = socket.data.user.joined_rooms;
-    const orTable: {
-      id: number
-    }[] = userJoinedRooms.map((room_id) => {
-      return {
-        id: room_id
-      }
-    });
     try {
       const rooms: {
         id: number;
@@ -559,51 +620,42 @@ io.on("connection", async (socket) => {
       }[] = await prismaClient.room.findMany({
         where: {
           OR: [
-            ...orTable,
-            {
-              created_by: socket.data.user.id
-            }
+            { id: { in: userJoinedRooms } },
+            { created_by: currentUser.id }
           ]
         }
       });
       console.log("tryna join all rooms");
-      rooms.map((room) => {
-        socket.join(`${room.id}`);
+      rooms.forEach((room) => {
+        socket.join(room.id.toString());
       });
       console.log("joined all rooms");
     } catch (e) {
       console.log("error while tryna join all current rooms : ", e)
     }
   })
-  socket.on("join-room", ({ roomName, roomId, currentUser }: {
+  socket.on("join-room", ({ roomName, roomId }: {
     roomName: string,
     roomId: number,
-    currentUser: {
-      name: string,
-      email: string,
-      id: number
-    }
   }) => {
     console.log("joining private", socket.id);
     socket.join(`${roomId}`);
-    socket.data.currentUser = currentUser;
-    console.log(`${currentUser.name} just joined room ${roomName}-${roomId}`);
-    io.to(`${roomId}`).emit("new-user-joined", currentUser);
+    console.log(`${socket.data.user.name} just joined room ${roomName}-${roomId}`);
+    io.to(`${roomId}`).emit("new-user-joined", socket.data.user);
   });
 
-  socket.on("send-message", ({ roomName, roomId, message, currentUser }: {
+  socket.on("send-message", async ({ roomId, message }: {
     roomId: number,
     message: string,
-    currentUser: {
-      name: string,
-      email: string,
-      id: number,
-    },
-    roomName: string
   }) => {
-    console.log("sending-message", socket.id);
-    const sender = socket.data.currentUser || currentUser;
-    io.to(`${roomId}`).emit("receive-message", { sender, message });
+    console.log("sending-message", socket.id, " message: ", message);
+    const sender = socket.data.user;
+    io.to(`${roomId}`).emit("receive-message", { sender, roomId, message });
+    const response: "error" | "success" = await saveMessage({
+      roomId, message, socket
+    })
+    console.log("saving in the db : ", response);
+
   });
 
   socket.on("disconnect", () => {

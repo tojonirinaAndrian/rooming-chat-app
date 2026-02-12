@@ -25,53 +25,59 @@ type messageFromDb = {
 }
 
 type messageFromSocket = {
-    content: string,
+    message: string,
+    roomId: number,
     sender: {
-        name: string;
-        email: string;
-        id: number;
+        name: string,
+        id: number
     }
 }
 
 export default function Page() {
     const { setWhereIsPrincipal, hasHydrated, loggedIn, currentUser } = useGlobalStore();
     const router = useRouter();
-    const { socket } = useSocketStore();
+    const { socket, connect, connected } = useSocketStore();
     const [where, setWhere] = useState<"all" | "created" | "joined">("all");
     const [roomsCharging, startRoomsCharging] = useTransition();
     const [rooms, setRooms] = useState<room[]>([]);
     const [currentRoom, setCurrentRoom] = useState<room>();
     const [message, setMessage] = useState<string>("");
     const [messages, setMessages] = useState<messageFromSocket[]>([]);
+    const [newlyReceivedMessage, setNewlyReceivedMessage] = useState<messageFromSocket>();
+    // const currentRoomMessagesRef = useRef<messageFromSocket[]>([]);
+    // const [newMessageSent, setNewMessageSent] = useState<boolean>(false);
 
     useEffect(() => {
         if (hasHydrated) {
-            if (loggedIn === false) {
+            if (!loggedIn) {
                 setWhereIsPrincipal("login");
                 router.push("/login");
                 return
             }
             setWhereIsPrincipal("myRooms");
+
+            // TODo: useEffect when the user receives messages
+            if (!connected) {
+                connect();
+            }
         }
     }, [hasHydrated]);
 
-    // TODo: useEffect when the user receives messages
     useEffect(() => {
         if (socket) {
-            socket.on("receive-message", (message: messageFromSocket) => {
-                setMessages(prev => [...prev, message])
-            });
+            const handler = (message: messageFromSocket) => {
+                setNewlyReceivedMessage(message);
+            }
+            socket.on("receive-message", handler);
             return () => {
-                socket.off("receive-message", (message: messageFromSocket) => {
-                    setMessages(prev => [...prev, message])
-                });
+                socket.off("receive-message", handler);
             }
         }
-    }, [])
+    }, [socket]);
 
     useEffect(() => {
         startRoomsCharging(async () => {
-            // TODO : get and show backend data 
+            // TODO : get and show backend data
             // add a room route in the backend too
             console.log(where);
             const response = await axiosInstance.get(`/api/get_rooms/${where}`);
@@ -84,22 +90,48 @@ export default function Page() {
         })
     }, [where]);
 
+    useEffect(() => {
+        if (newlyReceivedMessage && currentRoom) {
+            if (newlyReceivedMessage.roomId === currentRoom.id) {
+                // currentRoomMessagesRef.current = [...currentRoomMessagesRef.current, newlyReceivedMessage];
+                setMessages((prev) => [...prev, newlyReceivedMessage]);
+            }
+            else {
+                console.log("message for another room ", {
+                    sender: newlyReceivedMessage.sender.name,
+                    message: newlyReceivedMessage.message,
+                    room: newlyReceivedMessage.roomId
+                });
+            }
+        } else if (newlyReceivedMessage && !currentRoom) {
+            console.log("new message ", {
+                sender: newlyReceivedMessage.sender.name,
+                message: newlyReceivedMessage.message,
+                room: newlyReceivedMessage.roomId
+            });
+        }
+    }, [newlyReceivedMessage]);
+
     const onRoomClick = async (room: room) => {
-        // GET THE ROOMS messages (messages)
+        // GET THE ROOMS messages (messages);
         setCurrentRoom(room);
         // TOdO: later, change this into the actual messages from the backend.
-        setMessages([]);
+        const response = await axiosInstance.get(`/api/get_messages/${room.id}`);
+        if (response.data.message === "success") {
+            setMessages(response.data.messagesTable as messageFromSocket[]);
+        } else {
+            console.log("error while getting room's messages");
+        }
     };
 
     const onSendClick = async () => {
         // SENDING THE MESSAGE ::: THE WHOLE CORE
-        if (currentRoom) {
-            socket.emit("send-message", {
-                roomName: currentRoom.room_name,
+        if ((message.trim().length > 0) && currentRoom) {
+            socket?.emit("send-message", {
                 roomId: currentRoom.id,
-                message: message,
-                currentUser: currentUser
+                message: message.trim(),
             });
+            setMessage("");
         }
     }
 
@@ -157,19 +189,40 @@ export default function Page() {
                     <div className="w-full h-full p-3 overflow-auto space-y-2">
                         {/* messages */}
                         {messages.map((message, i) => {
-                            return <div key={i} className="rounded-md w-fit flex p-2 bg-slate-200 text-black flex-col gap-2">
-                                <p>{message.sender.name}</p>
-                                <p>{message.content}</p>
+                            return <div key={i} className={`rounded-md w-fit 
+                            flex p-2 px-3 bg-slate-200 text-black flex-col gap-1 max-w-[80%] 
+                            ${(message.sender.id === currentUser.id) ? "ml-auto" : "mr-auto"}
+                            `}>
+                                <p className="text-black/60">
+                                    {(message.sender.id === currentUser.id) ? "You" : message.sender.name} :
+                                </p>
+                                <p className="">
+                                    {message.message}
+                                </p>
                             </div>
                         })}
                     </div>
                     <div className="p-3 border-slate-200 border shadow-md w-full rounded-md flex gap-2 bg-white">
                         <input
-                            onChange={(e) => e.target.value.trim().length >= 1 && setMessage(e.target.value.trim())}
+                            id="changeInput"
+                            onChange={(e) => {
+                                setMessage(e.target.value);
+                            }}
+                            value={message}
+                            onKeyDown={(e) => {
+                                if (e.code.toLowerCase() === "enter") {
+                                    onSendClick();
+                                }
+                            }}
                             type="text" className="w-full p-3 outline-none" placeholder="Type a message..." />
                         <button
-                            onClick={() => onSendClick()}
-                            className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80">Send</button>
+                            onClick={() => {
+                                onSendClick();
+                            }}
+                            className="p-3 bg-black text-white rounded-md cursor-pointer hover:bg-black/80"
+                        >
+                            Send
+                        </button>
                     </div>
                 </div>
             </div>

@@ -8,10 +8,7 @@ export const getSocketConnection = () => {
         transports: ["websocket"],
         autoConnect: false,
         reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 20000,
+        reconnectionAttempts: Infinity,
     });
     return socketConnection
 }
