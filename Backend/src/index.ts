@@ -422,7 +422,7 @@ const saveMessage = async (messageToSaveAndSocketInstance: {
     })
     return "success";
   } catch (e) {
-    console.log (e);
+    console.log(e);
     return "error";
   }
 }
@@ -552,6 +552,40 @@ app.get("/api/get_rooms/:where", async (c) => {
   }
 })
 
+app.get("/api/leave_room/:room_id", async (c) => {
+  console.log("leaving room");
+  try {
+    const room_id = Number(c.req.param("room_id"));
+    const user_id = Number(getUser().id);
+    const current_room = await prismaClient.room.findUnique({ where: { id: room_id } });
+    if (current_room) {
+      const new_guests: number[] = [];
+      current_room.gueists_ids.map((guest_id) => {
+        if (guest_id !== user_id) {
+          new_guests.push(guest_id)
+        }
+      });
+      await prismaClient.room.update({
+        where: { id: room_id },
+        data: {
+          gueists_ids: [...new_guests]
+        }
+      });
+    } else {
+      return c.json({
+        message: "error"
+      })
+    }
+    return c.json({
+      message: "success"
+    });
+  } catch (e) {
+    return c.json({
+      message: "error",
+      error: e
+    });
+  }
+})
 
 const server = serve(app, (info) => {
   console.log("listening to port ", info.port)
@@ -631,7 +665,24 @@ io.on("connection", async (socket) => {
     } catch (e) {
       console.log("error while tryna join all current rooms : ", e)
     }
-  })
+  });
+
+  socket.on("leave-room", ({roomId}: {
+    roomId: number
+  }) => {
+    console.log("leaving room from socket", socket.id);
+    socket.leave(`${roomId}`);
+    io.to(`${roomId}`).emit("user-leaved", socket.data.user);
+  });
+
+  socket.on("room-deleted", ({roomId} : {
+    roomId: number
+  }) => {
+    console.log("room deleted by owner", socket.id);
+    socket.leave(`${roomId}`);
+    io.to(`${roomId}`).emit("user-leaved", socket.data.user);
+  });
+
   socket.on("join-room", ({ roomId }: {
     roomId: number,
   }) => {
