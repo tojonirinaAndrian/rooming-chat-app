@@ -5,12 +5,14 @@ import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import HeaderComponent from "./header";
 import axiosInstance from "../axios/axiosInstance";
+import { useSocketStore } from "../store/use-socket-store";
 
 export default function JoinRoom() {
     const router = useRouter();
     const {
         loggedIn, currentUser, setWhereIsPrincipal, hasHydrated
     } = useGlobalStore();
+    const { socket } = useSocketStore();
     const [joiningRoom, startJoiningRoom] = useTransition();
     const [roomName, setRoomName] = useState<string>("");
     const [roomId, setRoomId] = useState<string>("");
@@ -50,7 +52,9 @@ export default function JoinRoom() {
                 setGlobalState("success");
                 //CREATE: Socket-io joining-room
                 //TODO: Add this to the backend, Make it take user infos from the session
-                
+                socket?.emit("join-room", {
+                    roomId: Number(roomId)
+                });
             };
         });
     };
