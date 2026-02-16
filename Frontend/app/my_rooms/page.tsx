@@ -174,12 +174,23 @@ export default function Page() {
     }
 
     const onDeleteChatClick = async () => {
-        //TOdO : add delete chat endpoint to the backend
-        
+        //TOdO : add delete chat endpoint to the backend, and Socket.io on("delete-chat")
+        const res = await axiosInstance.get(`/api/delete_room/${currentRoom?.id}`);
+        if (res.data.message === "success") {
+            socket?.emit("room-deleted", { roomId: currentRoom?.id });
+        } else {
+            console.log(res.data)
+        }
     };
 
     const onLeaveChatClick = async () => {
-        //TODO : add leave chat endpoint to the backend
+        //TODO : add leave chat endpoint to the backend, and socket.io on("leave-chat")
+        const res = await axiosInstance.get(`/api/leave_room/${currentRoom?.id}`);
+        if (res.data.message === "success") {
+            socket?.emit("leave-room", { roomId: currentRoom?.id });
+        } else {
+            console.log(res.data)
+        }
     };
 
     return <>
