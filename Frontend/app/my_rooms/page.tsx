@@ -44,6 +44,7 @@ export default function Page() {
     const [message, setMessage] = useState<string>("");
     const [messages, setMessages] = useState<messageFromSocket[]>([]);
     const [newlyReceivedMessage, setNewlyReceivedMessage] = useState<messageFromSocket>();
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (hasHydrated) {
@@ -128,6 +129,10 @@ export default function Page() {
         }
     };
 
+    const onMenuClick = async () => {
+        setMenuOpen(!menuOpen);
+    }
+
     const onSendClick = async () => {
         // SENDING THE MESSAGE ::: THE WHOLE CORE
         if ((message.trim().length > 0) && currentRoom) {
@@ -138,6 +143,14 @@ export default function Page() {
             setMessage("");
         }
     }
+
+    const onDeleteChatClick = async () => {
+        //TOdO : add delete chat endpoint to the backend
+    };
+
+    const onLeaveChatClick = async () => {
+        //TODO : add leave chat endpoint to the backend
+    };
 
     return <>
         <div className="p-3 flex gap-2 h-dvh">
@@ -180,7 +193,7 @@ export default function Page() {
             </div>
             <div className="w-full rounded-md bg-slate-50 border border-slate-300 p-3 h-full flex flex-col gap-2">
                 <div className="h-full w-full flex flex-col gap-2">
-                    <div className="w-full flex justify-between rounded-md p-3 border-slate-200 border bg-white">
+                    <div className="relative w-full flex justify-between rounded-md p-3 border-slate-200 border bg-white">
                         <div className="flex gap-2 items-center">
                             <div className="w-10 h-10 bg-black rounded-full">
                             </div>
@@ -191,7 +204,23 @@ export default function Page() {
                                 </div>
                             }
                         </div>
-                        <button className="p-3 rounded-md bg-slate-100 cursor-pointer hover:bg-slate-200">Menu</button>
+                        {currentRoom && <>
+                            <button
+                                onClick={onMenuClick}
+                                className="p-3 rounded-md bg-slate-100 relative cursor-pointer hover:bg-slate-200">
+                                {menuOpen ? "Close" : "Open"} menu
+                            </button>
+                        </>}
+                        {menuOpen ? <div className="absolute top-[90%] right-3 w-fit bg-white *:p-2 rounded-sm p-1 flex flex-col gap-1 *:bg-white border border-slate-200 *:hover:bg-slate-200 *:rounded-sm shadow-sm *:cursor-pointer">
+                            {(currentRoom?.created_by === currentUser.id) ?
+                                <button className="text-red-500 hover:bg-red-100!"
+                                    onClick={onDeleteChatClick}
+                                >Delete chat</button> :
+                                <button className="text-red-500 hover:bg-red-100!"
+                                    onClick={onLeaveChatClick}
+                                >Leave chat</button>
+                            }
+                        </div> : <></>}
                     </div>
                     <div className="w-full h-full py-3 overflow-auto space-y-2 rounded-md">
                         {/* messages */}
