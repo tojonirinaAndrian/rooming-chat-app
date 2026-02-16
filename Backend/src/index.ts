@@ -585,6 +585,34 @@ app.get("/api/leave_room/:room_id", async (c) => {
       error: e
     });
   }
+});
+
+app.get("/api/delete_room/:room_id", async (c) => {
+  console.log("deleting room");
+  try {
+    const room_id = Number(c.req.param("room_id"));
+    const user_id = Number(getUser().id);
+    const current_room = await prismaClient.room.findUnique({ where: { id: room_id } });
+    if (current_room) {
+      await prismaClient.room.delete({
+        where: {
+          id: room_id, created_by: user_id
+        }
+      });
+    } else {
+      return c.json({
+        message: "error"
+      })
+    }
+    return c.json({
+      message: "success"
+    });
+  } catch (e) {
+    return c.json({
+      message: "error",
+      error: e
+    });
+  }
 })
 
 const server = serve(app, (info) => {
@@ -667,7 +695,7 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("leave-room", ({roomId}: {
+  socket.on("leave-room", ({ roomId }: {
     roomId: number
   }) => {
     console.log("leaving room from socket", socket.id);
@@ -675,7 +703,7 @@ io.on("connection", async (socket) => {
     io.to(`${roomId}`).emit("user-leaved", socket.data.user);
   });
 
-  socket.on("room-deleted", ({roomId} : {
+  socket.on("room-deleted", ({ roomId }: {
     roomId: number
   }) => {
     console.log("room deleted by owner", socket.id);
