@@ -3,9 +3,11 @@ import axiosInstance from "../axios/axiosInstance";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { useSocketStore } from "../store/use-socket-store";
 
 export default function LogOutComponent (props: {setIsLoggingOut: (arg0: boolean) => void}) {
     const { setWhereIsPrincipal } = useGlobalStore();
+    const { disconnect } = useSocketStore()
     const router = useRouter();
     const [logOutError, setLogOutError] = useState<boolean>(false);
     const [loggingOut, startLoggingOut] = useTransition();
@@ -15,8 +17,10 @@ export default function LogOutComponent (props: {setIsLoggingOut: (arg0: boolean
             console.log(response);
             if (response.data.message === "logoutSuccessful") {
                 setWhereIsPrincipal("login");
-                props.setIsLoggingOut(false);
+                //disconnecting the socket
+                disconnect();
                 router.push("/login");
+                props.setIsLoggingOut(false);
             } else if (response.data.message === "error") {
                 setLogOutError(true);
             }

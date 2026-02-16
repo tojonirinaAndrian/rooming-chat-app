@@ -44,8 +44,6 @@ export default function Page() {
     const [message, setMessage] = useState<string>("");
     const [messages, setMessages] = useState<messageFromSocket[]>([]);
     const [newlyReceivedMessage, setNewlyReceivedMessage] = useState<messageFromSocket>();
-    // const currentRoomMessagesRef = useRef<messageFromSocket[]>([]);
-    // const [newMessageSent, setNewMessageSent] = useState<boolean>(false);
 
     useEffect(() => {
         if (hasHydrated) {
@@ -92,7 +90,13 @@ export default function Page() {
 
     useEffect(() => {
         if (newlyReceivedMessage && currentRoom) {
+            console.log(newlyReceivedMessage.roomId, currentRoom.id);
             if (newlyReceivedMessage.roomId === currentRoom.id) {
+                console.log("new message received for the current room", {
+                    sender: newlyReceivedMessage.sender.name,
+                    message: newlyReceivedMessage.message,
+                    room: newlyReceivedMessage.roomId
+                });
                 // currentRoomMessagesRef.current = [...currentRoomMessagesRef.current, newlyReceivedMessage];
                 setMessages((prev) => [...prev, newlyReceivedMessage]);
             }
@@ -157,7 +161,7 @@ export default function Page() {
                             <p className="text-slate-600">charging...</p>
                         </> : <>
                             {(rooms.length >= 1) ? rooms.map((room) => {
-                                return <div key={room.id} className={`flex gap-2 items-center bg-slate-50 cursor-pointer hover:bg-slate-100 p-3 rounded-md ${(currentRoom?.id === room.id) && "bg-slate-100"}`}
+                                return <div key={room.id} className={`flex gap-2 items-center bg-slate-50/50 cursor-pointer hover:bg-slate-100 p-3 rounded-md ${(currentRoom?.id === room.id) && "bg-slate-100"}`}
                                     onClick={() => {
                                         onRoomClick(room)
                                     }}
@@ -181,12 +185,15 @@ export default function Page() {
                             <div className="w-10 h-10 bg-black rounded-full">
                             </div>
                             {currentRoom &&
-                                <p>{currentRoom.room_name} ~ id: {currentRoom.id}</p>
+                                <div className="flex flex-col gap-1">
+                                    <p className="font-medium">{currentRoom.room_name}</p>
+                                    <p className="text-xs"> ~ id: {currentRoom.id}</p>
+                                </div>
                             }
                         </div>
                         <button className="p-3 rounded-md bg-slate-100 cursor-pointer hover:bg-slate-200">Menu</button>
                     </div>
-                    <div className="w-full h-full p-3 overflow-auto space-y-2">
+                    <div className="w-full h-full py-3 overflow-auto space-y-2 rounded-md">
                         {/* messages */}
                         {messages.map((message, i) => {
                             return <div key={i} className={`rounded-md w-fit 

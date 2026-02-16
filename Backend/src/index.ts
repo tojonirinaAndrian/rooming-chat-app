@@ -291,6 +291,7 @@ app.get("/api/logout", async (c) => {
           isRevoked: true
         }
       });
+      deleteCookie(c, COOKIE_NAME);
       return c.json({ message: "logoutSuccessful" });
     } catch (error) {
       return c.json({ error, message: "error" });
@@ -327,10 +328,7 @@ app.post("/api/createRoom", async (c) => {
       }
     });
     return c.json({
-      createdRoom: {
-        room_name: createdRoom.room_name,
-        room_id: createdRoom.id
-      },
+      room: createdRoom,
       message: "success"
     });
 
@@ -388,7 +386,7 @@ app.get("/api/joinRoom/:room_name/:room_id", async (c) => {
         }
       });
       return c.json({
-        updatedRoom,
+        room: updatedRoom,
         message: "success"
       });
     } else {
@@ -634,13 +632,12 @@ io.on("connection", async (socket) => {
       console.log("error while tryna join all current rooms : ", e)
     }
   })
-  socket.on("join-room", ({ roomName, roomId }: {
-    roomName: string,
+  socket.on("join-room", ({ roomId }: {
     roomId: number,
   }) => {
     console.log("joining private", socket.id);
     socket.join(`${roomId}`);
-    console.log(`${socket.data.user.name} just joined room ${roomName}-${roomId}`);
+    console.log(`${socket.data.user.name} just joined room ${roomId}`);
     io.to(`${roomId}`).emit("new-user-joined", socket.data.user);
   });
 
@@ -648,8 +645,9 @@ io.on("connection", async (socket) => {
     roomId: number,
     message: string,
   }) => {
-    console.log("sending-message", socket.id, " message: ", message);
+    console.log("sending-message", socket.id, " message: ", message, " from : ", socket.data.user.name);
     const sender = socket.data.user;
+    console.log("sending message back to roomId : ", roomId);
     io.to(`${roomId}`).emit("receive-message", { sender, roomId, message });
     const response: "error" | "success" = await saveMessage({
       roomId, message, socket
