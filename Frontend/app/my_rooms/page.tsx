@@ -68,8 +68,37 @@ export default function Page() {
                 setNewlyReceivedMessage(message);
             }
             socket.on("receive-message", handler);
+            socket.on("user-leaved", ({ user, room_id }: {
+                user: {
+                    name: string;
+                    email: string;
+                    id: number;
+                },
+                room_id: number
+            }) => {
+                if (room_id === currentRoom?.id) {
+                    setCurrentRoom(undefined);
+                    setMessages([]);
+                }
+                setWhere(where);
+
+            })
             return () => {
                 socket.off("receive-message", handler);
+                socket.off("user-leaved", ({ user, room_id }: {
+                    user: {
+                        name: string;
+                        email: string;
+                        id: number;
+                    },
+                    room_id: number
+                }) => {
+                    if (room_id === currentRoom?.id) {
+                        setCurrentRoom(undefined);
+                        setMessages([]);
+                    }
+                    setWhere(where);
+                })
             }
         }
     }, [socket]);
@@ -146,6 +175,7 @@ export default function Page() {
 
     const onDeleteChatClick = async () => {
         //TOdO : add delete chat endpoint to the backend
+        
     };
 
     const onLeaveChatClick = async () => {
