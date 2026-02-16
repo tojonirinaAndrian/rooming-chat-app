@@ -66,9 +66,8 @@ export default function Page() {
         if (socket) {
             const handler = (message: messageFromSocket) => {
                 setNewlyReceivedMessage(message);
-            }
-            socket.on("receive-message", handler);
-            socket.on("user-leaved", (response: {
+            };
+            const userLeaveHandler = (response: {
                 user: {
                     name: string;
                     email: string;
@@ -76,30 +75,35 @@ export default function Page() {
                 },
                 room_id: number
             }) => {
-                console.log(response);
-                if (response.room_id === currentRoom?.id) {
-                    setCurrentRoom(undefined);
-                    setMessages([]);
-                }
-                setWhere(where);
-            })
+                console.log(response, currentRoom);
+                setCurrentRoom((prev) => {
+                    if (prev?.id === Number(response.room_id)) {
+                        return undefined
+                    } else return prev
+                });
+                setMessages((prev) => {
+                    if (prev[0].roomId === Number(response.room_id)) {
+                        return []
+                    } else return prev
+                })
+                startRoomsCharging(async () => {
+                    // TODO : get and show backend data
+                    // add a room route in the backend too
+                    console.log(where);
+                    const response = await axiosInstance.get(`/api/get_rooms/${where}`);
+                    console.log(response.data);
+                    if (response.data.rooms) {
+                        setRooms(response.data.rooms);
+                    } else {
+                        setRooms([]);
+                    }
+                });
+            };
+            socket.on("receive-message", handler);
+            socket.on("user-leaved", userLeaveHandler)
             return () => {
                 socket.off("receive-message", handler);
-                socket.off("user-leaved", (response: {
-                    user: {
-                        name: string;
-                        email: string;
-                        id: number;
-                    },
-                    room_id: number
-                }) => {
-                    console.log(response);
-                    if (response.room_id === currentRoom?.id) {
-                        setCurrentRoom(undefined);
-                        setMessages([]);
-                    }
-                    setWhere(where);
-                })
+                socket.off("user-leaved", userLeaveHandler)
             }
         }
     }, [socket]);
