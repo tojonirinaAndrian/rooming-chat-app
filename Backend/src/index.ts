@@ -560,17 +560,27 @@ app.get("/api/leave_room/:room_id", async (c) => {
     const current_room = await prismaClient.room.findUnique({ where: { id: room_id } });
     if (current_room) {
       const new_guests: number[] = [];
+      const new_joined_rooms: number[] = [];
       current_room.gueists_ids.map((guest_id) => {
         if (guest_id !== user_id) {
           new_guests.push(guest_id)
         }
       });
+      getUser().joined_rooms.map((room) => {
+        if (room !== room_id) new_joined_rooms.push(room)
+      })
       await prismaClient.room.update({
         where: { id: room_id },
         data: {
           gueists_ids: [...new_guests]
         }
       });
+      await prismaClient.user.update({
+        where: { id: user_id },
+        data: {
+          joined_rooms: [...new_joined_rooms]
+        }
+      })
     } else {
       return c.json({
         message: "error"
@@ -592,6 +602,11 @@ app.get("/api/delete_room/:room_id", async (c) => {
   try {
     const room_id = Number(c.req.param("room_id"));
     const user_id = Number(getUser().id);
+    const current_user_rooms = getUser().joined_rooms;
+    const new_user_rooms: number[] = [];
+    current_user_rooms.map((room) => {
+      if (room !== room_id) new_user_rooms.push(room);
+    })
     const current_room = await prismaClient.room.findUnique({ where: { id: room_id } });
     if (current_room) {
       await prismaClient.room.delete({
@@ -599,6 +614,15 @@ app.get("/api/delete_room/:room_id", async (c) => {
           id: room_id, created_by: user_id
         }
       });
+      const gueists_ids: number[] = current_room.gueists_ids
+      await prismaClient.user.updateMany({
+        where: {
+          id: { in:  gueists_ids }
+        },
+        data: {
+          joined_rooms: [...new_user_rooms]
+        }
+      })
     } else {
       return c.json({
         message: "error"
@@ -699,7 +723,7 @@ io.on("connection", async (socket) => {
     roomId: number
   }) => {
     console.log("leaving room from socket", socket.id);
-    io.to(`${roomId}`).emit("user-leaved", {user: socket.data.user, room_id: roomId});
+    io.to(`${roomId}`).emit("user-leaved", { user: socket.data.user, room_id: roomId });
     socket.leave(`${roomId}`);
   });
 
@@ -707,7 +731,7 @@ io.on("connection", async (socket) => {
     roomId: number
   }) => {
     console.log("room deleted by owner", socket.id);
-    io.to(`${roomId}`).emit("user-leaved", {user: socket.data.user, room_id: roomId});
+    io.to(`${roomId}`).emit("user-leaved", { user: socket.data.user, room_id: roomId });
     socket.leave(`${roomId}`);
   });
 
@@ -717,7 +741,7 @@ io.on("connection", async (socket) => {
     console.log("joining private", socket.id);
     socket.join(`${roomId}`);
     console.log(`${socket.data.user.name} just joined room ${roomId}`);
-    io.to(`${roomId}`).emit("new-user-joined", {user: socket.data.user, room_id: roomId});
+    io.to(`${roomId}`).emit("new-user-joined", { user: socket.data.user, room_id: roomId });
   });
 
   socket.on("send-message", async ({ roomId, message }: {
