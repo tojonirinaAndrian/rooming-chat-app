@@ -68,7 +68,7 @@ export default function Page() {
                 setNewlyReceivedMessage(message);
             }
             socket.on("receive-message", handler);
-            socket.on("user-leaved", ({ user, room_id }: {
+            socket.on("user-leaved", (response: {
                 user: {
                     name: string;
                     email: string;
@@ -76,16 +76,16 @@ export default function Page() {
                 },
                 room_id: number
             }) => {
-                if (room_id === currentRoom?.id) {
+                console.log(response);
+                if (response.room_id === currentRoom?.id) {
                     setCurrentRoom(undefined);
                     setMessages([]);
                 }
                 setWhere(where);
-
             })
             return () => {
                 socket.off("receive-message", handler);
-                socket.off("user-leaved", ({ user, room_id }: {
+                socket.off("user-leaved", (response: {
                     user: {
                         name: string;
                         email: string;
@@ -93,7 +93,8 @@ export default function Page() {
                     },
                     room_id: number
                 }) => {
-                    if (room_id === currentRoom?.id) {
+                    console.log(response);
+                    if (response.room_id === currentRoom?.id) {
                         setCurrentRoom(undefined);
                         setMessages([]);
                     }
@@ -175,8 +176,10 @@ export default function Page() {
 
     const onDeleteChatClick = async () => {
         //TOdO : add delete chat endpoint to the backend, and Socket.io on("delete-chat")
+        console.log("deleting chat");
         const res = await axiosInstance.get(`/api/delete_room/${currentRoom?.id}`);
         if (res.data.message === "success") {
+            console.log("done");
             socket?.emit("room-deleted", { roomId: currentRoom?.id });
         } else {
             console.log(res.data)
@@ -185,8 +188,10 @@ export default function Page() {
 
     const onLeaveChatClick = async () => {
         //TODO : add leave chat endpoint to the backend, and socket.io on("leave-chat")
+        console.log("leaving-room");
         const res = await axiosInstance.get(`/api/leave_room/${currentRoom?.id}`);
         if (res.data.message === "success") {
+            console.log("done");
             socket?.emit("leave-room", { roomId: currentRoom?.id });
         } else {
             console.log(res.data)

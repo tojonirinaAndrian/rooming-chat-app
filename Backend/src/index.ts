@@ -699,16 +699,16 @@ io.on("connection", async (socket) => {
     roomId: number
   }) => {
     console.log("leaving room from socket", socket.id);
-    socket.leave(`${roomId}`);
     io.to(`${roomId}`).emit("user-leaved", {user: socket.data.user, room_id: roomId});
+    socket.leave(`${roomId}`);
   });
 
   socket.on("room-deleted", ({ roomId }: {
     roomId: number
   }) => {
     console.log("room deleted by owner", socket.id);
-    socket.leave(`${roomId}`);
     io.to(`${roomId}`).emit("user-leaved", {user: socket.data.user, room_id: roomId});
+    socket.leave(`${roomId}`);
   });
 
   socket.on("join-room", ({ roomId }: {
