@@ -700,7 +700,7 @@ io.on("connection", async (socket) => {
   }) => {
     console.log("leaving room from socket", socket.id);
     socket.leave(`${roomId}`);
-    io.to(`${roomId}`).emit("user-leaved", socket.data.user);
+    io.to(`${roomId}`).emit("user-leaved", {user: socket.data.user});
   });
 
   socket.on("room-deleted", ({ roomId }: {
@@ -708,7 +708,7 @@ io.on("connection", async (socket) => {
   }) => {
     console.log("room deleted by owner", socket.id);
     socket.leave(`${roomId}`);
-    io.to(`${roomId}`).emit("user-leaved", socket.data.user);
+    io.to(`${roomId}`).emit("user-leaved", {user: socket.data.user});
   });
 
   socket.on("join-room", ({ roomId }: {
@@ -717,7 +717,7 @@ io.on("connection", async (socket) => {
     console.log("joining private", socket.id);
     socket.join(`${roomId}`);
     console.log(`${socket.data.user.name} just joined room ${roomId}`);
-    io.to(`${roomId}`).emit("new-user-joined", socket.data.user);
+    io.to(`${roomId}`).emit("new-user-joined", {user: socket.data.user});
   });
 
   socket.on("send-message", async ({ roomId, message }: {
