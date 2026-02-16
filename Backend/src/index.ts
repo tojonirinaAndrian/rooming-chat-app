@@ -11,6 +11,15 @@ import { prismaClient } from './prismaClient';
 import dotenv from "dotenv";
 import { Socket, Server as SocketIoServer } from "socket.io";
 import cookie from "cookie";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { createClient } from "redis";
+
+// Redis setup
+// const redisClient = createClient();
+// const pubClient = redisClient.duplicate();
+
+// await Promise.all([redisClient.connect(), pubClient.connect()]);
+// const adapter = createAdapter(pubClient, pubClient);
 
 dotenv.config();
 const FRONT_URL: string = String(process.env.FRONT_URL);
@@ -764,6 +773,10 @@ io.on("connection", async (socket) => {
   })
 })
 
+// for scaling horizontal servers
+// io.adapter(createAdapter(pubClient, pubClient));
+
+// for normal server and no nodejs server
 // fire(app);
 // export default app;
 // ORRR using THIS for nodeJs server
