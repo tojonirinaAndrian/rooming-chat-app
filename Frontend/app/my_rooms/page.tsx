@@ -76,27 +76,30 @@ export default function Page() {
                 room_id: number
             }) => {
                 console.log(response, currentRoom);
-                setCurrentRoom((prev) => {
-                    if (prev?.id === Number(response.room_id)) {
-                        return undefined
-                    } else return prev
-                });
-                setMessages((prev) => {
-                    if (prev[0].roomId === Number(response.room_id)) {
-                        return []
-                    } else return prev
-                })
+
                 startRoomsCharging(async () => {
                     // TODO : get and show backend data
                     // add a room route in the backend too
                     console.log(where);
-                    const response = await axiosInstance.get(`/api/get_rooms/${where}`);
-                    console.log(response.data);
-                    if (response.data.rooms) {
-                        setRooms(response.data.rooms);
+                    setCurrentRoom((prev) => {
+                        if (prev?.id === Number(response.room_id)) {
+                            return undefined
+                        } else return prev
+                    });
+                    setMessages((prev) => {
+                        if (prev.length > 0) {
+                            if (prev[0].roomId === Number(response.room_id)) return []
+                            else return prev
+                        } else return prev
+                    })
+                    const axiosResponse = await axiosInstance.get(`/api/get_rooms/${where}`);
+                    console.log(axiosResponse.data);
+                    if (axiosResponse.data.rooms) {
+                        setRooms(axiosResponse.data.rooms);
                     } else {
                         setRooms([]);
                     }
+                    setMenuOpen(false);
                 });
             };
             socket.on("receive-message", handler);
