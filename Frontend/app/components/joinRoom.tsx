@@ -29,7 +29,7 @@ export default function JoinRoom() {
             }
             setWhereIsPrincipal("joinRoom");
         }
-    });
+    }, [hasHydrated]);
 
     //TODO : Create a function that triggers then the button create room is clicked
     const onJoinRoomClick = () => {
