@@ -181,7 +181,7 @@ export default function Page() {
         }
     }
 
-    const onDeleteChatClick = async () => {
+    const onDeleteRoomClick = async () => {
         //TOdO : add delete chat endpoint to the backend, and Socket.io on("delete-chat")
         console.log("deleting chat");
         const res = await axiosInstance.get(`/api/delete_room/${currentRoom?.id}`);
@@ -193,7 +193,7 @@ export default function Page() {
         }
     };
 
-    const onLeaveChatClick = async () => {
+    const onLeaveRoomClick = async () => {
         //TODO : add leave chat endpoint to the backend, and socket.io on("leave-chat")
         console.log("leaving-room");
         const res = await axiosInstance.get(`/api/leave_room/${currentRoom?.id}`);
@@ -267,11 +267,11 @@ export default function Page() {
                         {menuOpen ? <div className="absolute top-[90%] right-3 w-fit bg-white *:p-2 rounded-sm p-1 flex flex-col gap-1 *:bg-white border border-slate-200 *:hover:bg-slate-200 *:rounded-sm shadow-sm *:cursor-pointer">
                             {(currentRoom?.created_by === currentUser.id) ?
                                 <button className="text-red-500 hover:bg-red-100!"
-                                    onClick={onDeleteChatClick}
-                                >Delete chat</button> :
+                                    onClick={onDeleteRoomClick}
+                                >Delete room</button> :
                                 <button className="text-red-500 hover:bg-red-100!"
-                                    onClick={onLeaveChatClick}
-                                >Leave chat</button>
+                                    onClick={onLeaveRoomClick}
+                                >Leave room</button>
                             }
                         </div> : <></>}
                     </div>
