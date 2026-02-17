@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
 import HeaderComponent from "../components/header";
 import { useGlobalStore } from "../store/use-globale-store";
 import { useRouter } from "next/navigation";
@@ -69,9 +69,9 @@ export default function Page() {
             };
             const userLeaveHandler = (response: {
                 user: {
-                    name: string;
-                    email: string;
-                    id: number;
+                    name: string,
+                    email: string,
+                    id: number
                 },
                 room_id: number
             }) => {
@@ -154,7 +154,7 @@ export default function Page() {
         }
     }, [newlyReceivedMessage]);
 
-    const onRoomClick = async (room: room) => {
+    const onRoomClick = useCallback(async (room: room) => {
         // GET THE ROOMS messages (messages);
         setCurrentRoom(room);
         // TOdO: later, change this into the actual messages from the backend.
@@ -164,13 +164,13 @@ export default function Page() {
         } else {
             console.log("error while getting room's messages");
         }
-    };
+    }, []);
 
-    const onMenuClick = async () => {
+    const onMenuClick = useCallback(async () => {
         setMenuOpen(!menuOpen);
-    }
+    }, [menuOpen]);
 
-    const onSendClick = async () => {
+    const onSendClick = useCallback(async () => {
         // SENDING THE MESSAGE ::: THE WHOLE CORE
         if ((message.trim().length > 0) && currentRoom) {
             socket?.emit("send-message", {
@@ -179,9 +179,9 @@ export default function Page() {
             });
             setMessage("");
         }
-    }
+    }, [message, socket, currentRoom]);
 
-    const onDeleteRoomClick = async () => {
+    const onDeleteRoomClick = useCallback(async () => {
         //TOdO : add delete chat endpoint to the backend, and Socket.io on("delete-chat")
         console.log("deleting chat");
         const res = await axiosInstance.get(`/api/delete_room/${currentRoom?.id}`);
@@ -191,9 +191,9 @@ export default function Page() {
         } else {
             console.log(res.data)
         }
-    };
+    }, [currentRoom, socket]);
 
-    const onLeaveRoomClick = async () => {
+    const onLeaveRoomClick = useCallback(async () => {
         //TODO : add leave chat endpoint to the backend, and socket.io on("leave-chat")
         console.log("leaving-room");
         const res = await axiosInstance.get(`/api/leave_room/${currentRoom?.id}`);
@@ -203,7 +203,7 @@ export default function Page() {
         } else {
             console.log(res.data)
         }
-    };
+    }, [currentRoom, socket]);
 
     return <>
         <div className="p-3 flex gap-2 h-dvh">
